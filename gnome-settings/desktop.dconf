@@ -33,6 +33,9 @@ enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.c
 [org/gnome/desktop/background]
 picture-options='zoom'
 
+[org/gnome/desktop/session]
+idle-delay=uint32 0
+
 [org/gnome/settings-daemon/plugins/power]
 sleep-inactive-ac-timeout=3600
 sleep-inactive-ac-type='nothing'
@@ -40,6 +43,7 @@ sleep-inactive-battery-timeout=1800
 sleep-inactive-battery-type='suspend'
 power-button-action='interactive'
 ambient-enabled=false
+idle-dim=false
 
 [org/gnome/desktop/peripherals/mouse]
 natural-scroll=false

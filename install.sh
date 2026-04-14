@@ -146,10 +146,12 @@ install_flatpak() {
 
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
 ESSENTIAL_FLATPAK_APPS=(
-    "com.github.tchx84.Flatseal"          # Flatseal - manage Flatpak permissions
+    "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
     "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
     "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts
     "page.codeberg.Addwater.Addwater"      # Add Water - Adwaita theme customisation
+    "io.github.AdrianMoRo.Rewaita"         # Rewaita - Adwaita icon theme variants
+    "io.missioncenter.MissionCenter"       # Mission Center - system monitor
 )
 
 install_essential_flatpaks() {
@@ -302,18 +304,22 @@ restart_gnome_shell() {
 #   type = flatpak  →  Flathub app ID
 #   type = script   →  custom installer function name
 OPTIONAL_APPS=(
-    "Visual Studio Code|flatpak:com.visualstudio.code"
-    "VLC Media Player|flatpak:org.videolan.VLC"
-    "JetBrains Rider|flatpak:com.jetbrains.Rider"
-    "Discord|flatpak:com.discordapp.Discord"
+    # Entertainment
     "Spotify|flatpak:com.spotify.Client"
-    "Firefox|flatpak:org.mozilla.firefox"
+    "Discord|flatpak:com.discordapp.Discord"
     "Steam|flatpak:com.valvesoftware.Steam"
+    "VLC Media Player|flatpak:org.videolan.VLC"
+    # Creative
     "Blender|flatpak:org.blender.Blender"
     "GIMP|flatpak:org.gimp.GIMP"
-    ".NET SDK & Runtimes|script:dotnet"
-    "GitHub Desktop|flatpak:io.github.shiftey.Desktop"
     "Unity Hub|flatpak:com.unity.UnityHub"
+    # Utilities
+    "Visual Studio Code|flatpak:com.visualstudio.code"
+    "JetBrains Rider|flatpak:com.jetbrains.Rider"
+    "GitHub Desktop|flatpak:io.github.shiftey.Desktop"
+    "Trayscale (Tailscale GUI)|flatpak:dev.deedles.Trayscale"
+    # Runtimes
+    ".NET SDK & Runtimes|script:dotnet"
 )
 
 # ─── .NET SDK installer (via Microsoft install script) ─────────────────────────
@@ -481,6 +487,230 @@ run_profile() {
     bash "$script"
 }
 
+# ─── System update ──────────────────────────────────────────────────────────────
+system_update() {
+    info "Updating system packages..."
+    if command -v dnf &>/dev/null; then
+        sudo dnf update -y || warning "dnf update encountered an error."
+    elif command -v apt-get &>/dev/null; then
+        sudo apt-get update -y && sudo apt-get upgrade -y || warning "apt upgrade encountered an error."
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -Syu --noconfirm || warning "pacman update encountered an error."
+    fi
+
+    if command -v flatpak &>/dev/null; then
+        info "Updating Flatpak applications..."
+        flatpak update -y || warning "flatpak update encountered an error."
+    fi
+}
+
+
+# ─── User preferences (24h clock, auto-login, blank screen, battery) ──────────
+ask_user_preferences() {
+    echo ""
+    info "Configuring user preferences..."
+    echo ""
+
+    local prefs=()
+    local pref_labels=(
+        "Use 24-hour time format"
+        "Login without asking for password (auto-login)"
+        "Blank screen: Never (display stays on)"
+        "Preserve battery (power-saver profile)"
+    )
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        local raw
+        raw=$(gum choose --no-limit \
+            --header.foreground="212" \
+            --header "  Select preferences (↑/↓ move, Space select, Enter confirm):" \
+            "${pref_labels[@]}") || true
+        if [ -n "$raw" ]; then
+            while IFS= read -r line; do
+                prefs+=("$line")
+            done <<< "$raw"
+        fi
+    else
+        echo -e "${CYAN}${BOLD}User preferences:${NC}"
+        for i in "${!pref_labels[@]}"; do
+            printf "  %2d) %s\n" "$((i + 1))" "${pref_labels[$i]}"
+        done
+        echo ""
+        echo "Enter numbers to enable (space-separated), or press Enter to skip:"
+        local choices
+        read -rp "> " choices
+        for num in $choices; do
+            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#pref_labels[@]}" ]; then
+                prefs+=("${pref_labels[$((num - 1))]}")
+            fi
+        done
+    fi
+
+    for pref in "${prefs[@]}"; do
+        case "$pref" in
+            "Use 24-hour time format")
+                info "Setting 24-hour time format..."
+                gsettings set org.gnome.desktop.interface clock-format '24h' 2>/dev/null || true
+                # Also set locale-based 24h via dconf
+                dconf write /system/locale/region "'en_GB.UTF-8'" 2>/dev/null || true
+                ;;
+            "Login without asking for password (auto-login)")
+                info "Enabling automatic login..."
+                local current_user
+                current_user=$(whoami)
+                sudo mkdir -p /etc/gdm 2>/dev/null || true
+                # Works for GDM (Fedora/GNOME default)
+                if [ -f /etc/gdm/custom.conf ]; then
+                    sudo sed -i '/^\[daemon\]/,/^\[/ { /^AutomaticLoginEnable/d; /^AutomaticLogin=/d; }' /etc/gdm/custom.conf
+                    sudo sed -i "/^\[daemon\]/a AutomaticLoginEnable=True\nAutomaticLogin=${current_user}" /etc/gdm/custom.conf
+                else
+                    echo -e "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${current_user}" \
+                        | sudo tee /etc/gdm/custom.conf > /dev/null
+                fi
+                info "Automatic login enabled for user '${current_user}'."
+                ;;
+            "Blank screen: Never (display stays on)")
+                info "Setting blank screen to Never..."
+                gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true
+                gsettings set org.gnome.settings-daemon.plugins.power idle-dim false 2>/dev/null || true
+                ;;
+            "Preserve battery (power-saver profile)")
+                info "Setting power profile to power-saver..."
+                if command -v powerprofilesctl &>/dev/null; then
+                    powerprofilesctl set power-saver || warning "Could not set power-saver profile."
+                else
+                    warning "powerprofilesctl not found - skipping power profile change."
+                fi
+                # Additional battery-saving settings
+                gsettings set org.gnome.settings-daemon.plugins.power idle-dim true 2>/dev/null || true
+                gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled true 2>/dev/null || true
+                ;;
+        esac
+    done
+
+    if [ ${#prefs[@]} -eq 0 ]; then
+        info "No preferences selected - using defaults."
+    fi
+}
+
+# ─── Uninstall GNOME bloatware ─────────────────────────────────────────────────
+GNOME_BLOAT_APPS=(
+    "org.gnome.Boxes|Boxes"
+    "org.gnome.Characters|Characters"
+    "org.gnome.Connections|Connections"
+    "org.gnome.Contacts|Contacts"
+    "org.gnome.Extensions|Extensions"
+    "org.gnome.DiskUtility|Disks"
+    "org.gnome.baobab|Disk Usage Analyser"
+    "org.gnome.SimpleScan|Document Scanner"
+    "org.fedoraproject.MediaWriter|Fedora Media Writer"
+    "org.gnome.Yelp|Help"
+    "org.libreoffice.LibreOffice.Calc|LibreOffice Calc"
+    "org.libreoffice.LibreOffice.Impress|LibreOffice Impress"
+    "org.libreoffice.LibreOffice.Writer|LibreOffice Writer"
+    "org.gnome.Maps|Maps"
+    "org.freedesktop.MalcontentControl|Parental Controls"
+    "org.gnome.SystemMonitor|System Monitor"
+    "org.gnome.Tour|Tour"
+    "org.gnome.Weather|Weather"
+)
+
+# Map display names → dnf package names for RPM-based removal
+declare -A BLOAT_DNF_PACKAGES=(
+    ["Boxes"]="gnome-boxes"
+    ["Characters"]="gnome-characters"
+    ["Connections"]="gnome-connections"
+    ["Contacts"]="gnome-contacts"
+    ["Extensions"]="gnome-extensions-app"
+    ["Disks"]="gnome-disk-utility"
+    ["Disk Usage Analyser"]="baobab"
+    ["Document Scanner"]="simple-scan"
+    ["Fedora Media Writer"]="mediawriter"
+    ["Help"]="yelp"
+    ["LibreOffice Calc"]="libreoffice-calc"
+    ["LibreOffice Impress"]="libreoffice-impress"
+    ["LibreOffice Writer"]="libreoffice-writer"
+    ["Maps"]="gnome-maps"
+    ["Parental Controls"]="malcontent"
+    ["System Monitor"]="gnome-system-monitor"
+    ["Tour"]="gnome-tour"
+    ["Weather"]="gnome-weather"
+)
+
+ask_uninstall_bloat() {
+    echo ""
+    info "Uninstall unnecessary GNOME applications?"
+    echo ""
+
+    local labels=()
+    for entry in "${GNOME_BLOAT_APPS[@]}"; do
+        labels+=("${entry##*|}")
+    done
+
+    local selected=()
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        local raw
+        raw=$(gum choose --no-limit \
+            --selected="${labels[0]}" \
+            --header.foreground="212" \
+            --header "  Select bloat to uninstall (↑/↓ move, Space select, Enter confirm):" \
+            "${labels[@]}") || true
+        if [ -n "$raw" ]; then
+            while IFS= read -r line; do
+                selected+=("$line")
+            done <<< "$raw"
+        fi
+    else
+        echo -e "${CYAN}${BOLD}GNOME bloat applications:${NC}"
+        for i in "${!labels[@]}"; do
+            printf "  %2d) %s\n" "$((i + 1))" "${labels[$i]}"
+        done
+        echo ""
+        echo "Enter numbers to uninstall (space-separated), or press Enter to skip:"
+        local choices
+        read -rp "> " choices
+        for num in $choices; do
+            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#labels[@]}" ]; then
+                selected+=("${labels[$((num - 1))]}")
+            fi
+        done
+    fi
+
+    if [ ${#selected[@]} -eq 0 ]; then
+        info "No bloat apps selected for removal."
+        return
+    fi
+
+    info "Removing ${#selected[@]} application(s)..."
+
+    for sel in "${selected[@]}"; do
+        # Try removing as Flatpak first
+        for entry in "${GNOME_BLOAT_APPS[@]}"; do
+            local app_id="${entry%%|*}"
+            local label="${entry##*|}"
+            if [ "$label" = "$sel" ]; then
+                if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
+                    info "Removing Flatpak: $sel..."
+                    flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove Flatpak $sel."
+                fi
+                break
+            fi
+        done
+
+        # Also try removing the RPM/system package
+        local pkg="${BLOAT_DNF_PACKAGES[$sel]:-}"
+        if [ -n "$pkg" ] && command -v dnf &>/dev/null; then
+            if rpm -q "$pkg" &>/dev/null; then
+                info "Removing system package: $pkg..."
+                sudo dnf remove -y "$pkg" 2>/dev/null || warning "Failed to remove $pkg."
+            fi
+        fi
+    done
+
+    info "Bloat removal complete."
+}
+
 # ─── Main ──────────────────────────────────────────────────────────────────────
 main() {
     echo ""
@@ -493,25 +723,34 @@ main() {
     # 1. Bootstrap tooling
     install_gum
 
-    # 2. Profile selection (first interactive prompt)
+    # 2. System update (dnf + flatpak)
+    system_update
+
+    # 3. Profile selection (first interactive prompt)
     local profile
     profile=$(select_profile)
     info "Selected profile: ${BOLD}${profile}${NC}"
 
-    # 3. Core setup
+    # 4. Core setup
     install_git
     clone_repo
     install_flatpak
 
-    # 4. Essential Flatpaks & GNOME extensions
+    # 5. Essential Flatpaks (includes Mission Center) & GNOME extensions
     install_essential_flatpaks
     install_gnome_extensions
     restart_gnome_shell
 
-    # 5. Optional applications (interactive chooser)
+    # 6. User preferences (24h clock, auto-login, blank screen, battery)
+    ask_user_preferences
+
+    # 7. Ask to uninstall GNOME bloat
+    ask_uninstall_bloat
+
+    # 8. Optional applications (interactive chooser — includes Trayscale)
     select_and_install_optional_apps
 
-    # 6. Apply profile-specific settings
+    # 9. Apply profile-specific settings
     import_gnome_settings "$profile"
     run_profile "$profile"
 
