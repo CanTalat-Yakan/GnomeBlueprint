@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GnomeBlueprint — Desktop profile setup
+# GnomeBlueprint - Desktop profile setup
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This script is invoked automatically by install.sh when the "Desktop" profile
@@ -31,6 +31,12 @@ if command -v gsettings &>/dev/null; then
 
     # Keep the display on while the machine is idle (desktops usually stay on)
     gsettings set org.gnome.desktop.session idle-delay 0 \
+        2>/dev/null || true
+
+    # Just Perfection - panel at the bottom, clock on the right (desktop layout)
+    gsettings set org.gnome.shell.extensions.just-perfection panel-position 1 \
+        2>/dev/null || true
+    gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 2 \
         2>/dev/null || true
 fi
 

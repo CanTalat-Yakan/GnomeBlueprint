@@ -1,6 +1,6 @@
 # GnomeBlueprint
 
-> A GNOME desktop automation and dotfiles repository — install your perfect GNOME environment in one command.
+> A GNOME desktop automation and dotfiles repository - install your perfect GNOME environment in one command.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
 
@@ -105,4 +105,4 @@ Then commit and push the changes to your fork so future installs pick them up.
 
 ## 📄 License
 
-This project is licensed under the **GNU General Public License v3.0 or later** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **GNU General Public License v3.0 or later** - see the [LICENSE](LICENSE) file for details.

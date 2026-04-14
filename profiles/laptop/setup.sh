@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GnomeBlueprint — Laptop profile setup
+# GnomeBlueprint - Laptop profile setup
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # This script is invoked automatically by install.sh when the "Laptop" profile
@@ -38,6 +38,12 @@ if command -v gsettings &>/dev/null; then
     gsettings set org.gnome.settings-daemon.plugins.power idle-dim true \
         2>/dev/null || true
     gsettings set org.gnome.desktop.session idle-delay 300 \
+        2>/dev/null || true
+
+    # Just Perfection - panel at the top, clock centered (laptop default)
+    gsettings set org.gnome.shell.extensions.just-perfection panel-position 0 \
+        2>/dev/null || true
+    gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 1 \
         2>/dev/null || true
 fi
 

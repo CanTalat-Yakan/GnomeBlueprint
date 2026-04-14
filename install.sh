@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GnomeBlueprint — GNOME Desktop Automation Installer
+# GnomeBlueprint - GNOME Desktop Automation Installer
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Usage (one-liner):
@@ -31,7 +31,7 @@ install_one_flatpak() {
     else
         info "Installing $app..."
         flatpak install -y flathub "$app" \
-            || warning "Failed to install $app — skipping."
+            || warning "Failed to install $app - skipping."
     fi
 }
 
@@ -58,7 +58,7 @@ install_git() {
 # ─── Clone / update repository ─────────────────────────────────────────────────
 clone_repo() {
     if [ -d "$DOTFILES_DIR/.git" ]; then
-        info "Dotfiles already present at $DOTFILES_DIR — pulling latest changes..."
+        info "Dotfiles already present at $DOTFILES_DIR - pulling latest changes..."
         git -C "$DOTFILES_DIR" pull --ff-only
     else
         info "Cloning GnomeBlueprint to $DOTFILES_DIR..."
@@ -84,7 +84,7 @@ install_gum() {
         # Verify the key fingerprint before trusting it
         if ! gpg --no-default-keyring --keyring "gnupg-ring:${tmp_key}" \
                 --fingerprint 2>/dev/null | grep -qi "$CHARM_KEY_FINGERPRINT"; then
-            warning "GPG key fingerprint mismatch — installing gum without fingerprint check (key sourced via HTTPS)."
+            warning "GPG key fingerprint mismatch - installing gum without fingerprint check (key sourced via HTTPS)."
         fi
         sudo mkdir -p /etc/apt/keyrings
         gpg --dearmor "$tmp_key" | sudo tee /etc/apt/keyrings/charm.gpg > /dev/null
@@ -146,10 +146,10 @@ install_flatpak() {
 
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
 ESSENTIAL_FLATPAK_APPS=(
-    "com.github.tchx84.Flatseal"          # Flatseal — manage Flatpak permissions
-    "com.mattjakeman.ExtensionManager"     # Extension Manager — browse & toggle GNOME extensions
-    "io.github.fabrialberio.pinapp"        # Pins — create custom app shortcuts
-    "page.codeberg.Addwater.Addwater"      # Add Water — Adwaita theme customisation
+    "com.github.tchx84.Flatseal"          # Flatseal - manage Flatpak permissions
+    "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
+    "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts
+    "page.codeberg.Addwater.Addwater"      # Add Water - Adwaita theme customisation
 )
 
 install_essential_flatpaks() {
@@ -169,16 +169,50 @@ GNOME_EXTENSIONS=(
     "just-perfection-desktop@just-perfection|Just Perfection"
     "panel-corners@aunetx|Panel Corners"
     "user-theme@gnome-shell-extensions.gcampax.github.com|User Themes"
-    "wallpaper-slideshow@NOTaROBOT.github.io|Wallpaper Slideshow"
+    "azwallpaper@azwallpaper.gitlab.com|Wallpaper Slideshow"
 )
+
+# ─── Patch extension metadata.json with current GNOME Shell version ─────────────
+# Some extensions don't list the latest Shell version yet - adding it allows them
+# to load without waiting for an upstream update.
+patch_extension_metadata() {
+    local uuid="$1"
+    local metadata="$HOME/.local/share/gnome-shell/extensions/${uuid}/metadata.json"
+
+    if [ ! -f "$metadata" ]; then
+        return
+    fi
+
+    local shell_version
+    shell_version=$(gnome-shell --version 2>/dev/null | grep -oP '\d+' | head -1) || true
+    if [ -z "$shell_version" ]; then
+        return
+    fi
+
+    python3 -c "
+import json
+path = '$metadata'
+sv   = '$shell_version'
+with open(path) as f:
+    data = json.load(f)
+versions = data.get('shell-version', [])
+if sv not in versions:
+    versions.append(sv)
+    data['shell-version'] = versions
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+    print(f'  Patched GNOME Shell {sv} into metadata for $uuid')
+" 2>/dev/null || true
+}
 
 install_gnome_extension() {
     local uuid="$1" name="$2"
 
-    # Already installed — just make sure it is enabled
+    # Already installed - patch metadata and make sure it is enabled
     if gnome-extensions list 2>/dev/null | grep -qx "$uuid"; then
+        patch_extension_metadata "$uuid"
         gnome-extensions enable "$uuid" 2>/dev/null || true
-        info "$name is already installed — ensured enabled."
+        info "$name is already installed - ensured enabled."
         return
     fi
 
@@ -188,7 +222,7 @@ install_gnome_extension() {
     local shell_version
     shell_version=$(gnome-shell --version 2>/dev/null | grep -oP '\d+' | head -1) || true
     if [ -z "$shell_version" ]; then
-        warning "Could not detect GNOME Shell version — skipping $name."
+        warning "Could not detect GNOME Shell version - skipping $name."
         return
     fi
 
@@ -196,7 +230,7 @@ install_gnome_extension() {
     local info_url="https://extensions.gnome.org/extension-info/?uuid=${uuid}&shell_version=${shell_version}"
     local info_json
     info_json=$(curl -fsSL "$info_url" 2>/dev/null) || {
-        warning "Could not fetch metadata for $name — skipping."
+        warning "Could not fetch metadata for $name - skipping."
         return
     }
 
@@ -204,7 +238,7 @@ install_gnome_extension() {
     local download_url
     download_url=$(echo "$info_json" \
         | python3 -c "import sys,json; print(json.load(sys.stdin)['download_url'])" 2>/dev/null) || {
-        warning "Extension $name may not support GNOME Shell $shell_version — skipping."
+        warning "Extension $name may not support GNOME Shell $shell_version - skipping."
         return
     }
 
@@ -212,26 +246,29 @@ install_gnome_extension() {
     local tmp_zip
     tmp_zip=$(mktemp --suffix=.zip)
     curl -fsSL "https://extensions.gnome.org${download_url}" -o "$tmp_zip" || {
-        warning "Download failed for $name — skipping."
+        warning "Download failed for $name - skipping."
         rm -f "$tmp_zip"; return
     }
 
     gnome-extensions install --force "$tmp_zip" 2>/dev/null || {
-        warning "Install command failed for $name — skipping."
+        warning "Install command failed for $name - skipping."
         rm -f "$tmp_zip"; return
     }
     rm -f "$tmp_zip"
 
+    # Patch metadata.json so the extension loads on the current Shell version
+    patch_extension_metadata "$uuid"
+
     # Enable (may require a Shell restart to take full effect)
     gnome-extensions enable "$uuid" 2>/dev/null || \
-        warning "Installed $name but could not enable it — enable manually via Extension Manager."
+        warning "Installed $name but could not enable it - enable manually via Extension Manager."
 
     info "$name installed successfully."
 }
 
 install_gnome_extensions() {
     if ! command -v gnome-extensions &>/dev/null; then
-        warning "gnome-extensions CLI not found — skipping GNOME Shell extension installation."
+        warning "gnome-extensions CLI not found - skipping GNOME Shell extension installation."
         warning "You can install extensions manually via Extension Manager after setup."
         return
     fi
@@ -242,7 +279,22 @@ install_gnome_extensions() {
         local name="${entry##*|}"
         install_gnome_extension "$uuid" "$name"
     done
-    info "GNOME Shell extensions done. A session restart may be needed to activate them."
+    info "GNOME Shell extensions installed."
+}
+
+# ─── Restart GNOME Shell to activate extensions ────────────────────────────────
+restart_gnome_shell() {
+    info "Restarting GNOME Shell to activate extensions..."
+
+    if [ "${XDG_SESSION_TYPE:-}" = "x11" ]; then
+        busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s \
+            'Meta.restart("Restarting GNOME Shell...")' 2>/dev/null \
+            && { sleep 2; info "GNOME Shell restarted."; } \
+            || warning "Could not restart GNOME Shell - please log out and back in."
+    else
+        warning "Running on Wayland - GNOME Shell cannot be restarted in-place."
+        warning "Please log out and back in for all extensions to take full effect."
+    fi
 }
 
 # ─── Optional applications (interactive chooser) ───────────────────────────────
@@ -270,7 +322,7 @@ install_dotnet() {
     local tmp_script
     tmp_script=$(mktemp)
     curl -fsSL https://dot.net/v1/dotnet-install.sh -o "$tmp_script" || {
-        warning "Failed to download .NET install script — skipping."
+        warning "Failed to download .NET install script - skipping."
         rm -f "$tmp_script"; return
     }
     chmod +x "$tmp_script"
@@ -331,7 +383,7 @@ select_and_install_optional_apps() {
     fi
 
     if [ ${#selected[@]} -eq 0 ]; then
-        info "No optional applications selected — moving on."
+        info "No optional applications selected - moving on."
         return
     fi
 
@@ -366,12 +418,12 @@ import_gnome_settings() {
     local dconf_file="$DOTFILES_DIR/gnome-settings/${profile}.dconf"
 
     if [ ! -f "$dconf_file" ]; then
-        warning "No dconf file found at $dconf_file — skipping GNOME settings import."
+        warning "No dconf file found at $dconf_file - skipping GNOME settings import."
         return
     fi
 
     if ! command -v dconf &>/dev/null; then
-        warning "dconf not found — skipping GNOME settings import."
+        warning "dconf not found - skipping GNOME settings import."
         return
     fi
 
@@ -401,13 +453,13 @@ select_profile() {
         case "$choice" in
             1) profile="desktop" ;;
             2) profile="laptop"  ;;
-            *) warning "Invalid choice — defaulting to 'desktop'."; profile="desktop" ;;
+            *) warning "Invalid choice - defaulting to 'desktop'."; profile="desktop" ;;
         esac
     fi
 
     # Guard against empty selection (e.g. user pressed Ctrl-C in gum)
     if [ -z "$profile" ]; then
-        warning "No profile selected — defaulting to 'desktop'."
+        warning "No profile selected - defaulting to 'desktop'."
         profile="desktop"
     fi
 
@@ -420,7 +472,7 @@ run_profile() {
     local script="$DOTFILES_DIR/profiles/${profile}/setup.sh"
 
     if [ ! -f "$script" ]; then
-        warning "No setup script found at $script — skipping profile setup."
+        warning "No setup script found at $script - skipping profile setup."
         return
     fi
 
@@ -438,19 +490,28 @@ main() {
     echo "  ╚═══════════════════════════════════════╝"
     echo -e "${NC}"
 
-    install_git
-    clone_repo
+    # 1. Bootstrap tooling
     install_gum
-    install_flatpak
 
-    install_essential_flatpaks
-    install_gnome_extensions
-    select_and_install_optional_apps
-
+    # 2. Profile selection (first interactive prompt)
     local profile
     profile=$(select_profile)
     info "Selected profile: ${BOLD}${profile}${NC}"
 
+    # 3. Core setup
+    install_git
+    clone_repo
+    install_flatpak
+
+    # 4. Essential Flatpaks & GNOME extensions
+    install_essential_flatpaks
+    install_gnome_extensions
+    restart_gnome_shell
+
+    # 5. Optional applications (interactive chooser)
+    select_and_install_optional_apps
+
+    # 6. Apply profile-specific settings
     import_gnome_settings "$profile"
     run_profile "$profile"
 
