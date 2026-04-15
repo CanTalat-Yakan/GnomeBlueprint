@@ -780,7 +780,7 @@ GNOME_BLOAT_APPS=(
     "org.gnome.Weather|gnome-weather|Weather"
 )
 
-# Packages whose removal would break the desktop — never touch these via dnf.
+# Packages whose removal would break the desktop - never touch these via dnf.
 PROTECTED_RE="gnome-shell|gdm|mutter|gnome-session|gnome-settings-daemon"
 
 # Safely remove an RPM package: dry-run first, skip if it would cascade into
@@ -788,7 +788,7 @@ PROTECTED_RE="gnome-shell|gdm|mutter|gnome-session|gnome-settings-daemon"
 safe_dnf_remove() {
     local pkg="$1" label="$2"
 
-    # Not installed — nothing to do
+    # Not installed - nothing to do
     command -v rpm &>/dev/null || return
     rpm -q "$pkg" &>/dev/null 2>&1 || return
 
@@ -796,7 +796,7 @@ safe_dnf_remove() {
     local sim
     sim=$(dnf remove --assumeno --setopt=clean_requirements_on_remove=True "$pkg" 2>&1 || true)
     if echo "$sim" | grep -qEi "$PROTECTED_RE"; then
-        warning "Skipping $label ($pkg) — removing it would also remove core desktop packages."
+        warning "Skipping $label ($pkg) - removing it would also remove core desktop packages."
         return
     fi
 
@@ -898,7 +898,7 @@ main() {
     # 10. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 11. Optional applications (interactive chooser — includes Trayscale)
+    # 11. Optional applications (interactive chooser - includes Trayscale)
     select_and_install_optional_apps
 
     # 12. Apply profile-specific settings
