@@ -10,6 +10,7 @@ set -euo pipefail
 REPO_URL="https://github.com/CanTalat-Yakan/GnomeBlueprint"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
+USE_OLED=false
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
 YELLOW='\033[1;33m'
@@ -815,22 +816,21 @@ with open(path, 'w') as f:
 #   • Set terminal (Ptyxis) palette to XTerm
 ask_oled_preference() {
     echo ""
-    local use_oled=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         if gum confirm --default=no "  Use pure-black OLED dark theme?"; then
-            use_oled=true
+            USE_OLED=true
         fi
     else
         echo -e "${CYAN}${BOLD}Use pure-black OLED dark theme?${NC} [y/N]"
         local answer
         read -rp "> " answer
         case "$answer" in
-            [yY]*) use_oled=true ;;
+            [yY]*) USE_OLED=true ;;
         esac
     fi
 
-    if [ "$use_oled" = false ]; then
+    if [ "$USE_OLED" = false ]; then
         info "Using standard dark theme."
 
         # Set Text Editor to Adwaita Dark
@@ -935,6 +935,12 @@ configure_addwater() {
 configure_firefox() {
     info "Configuring Firefox preferences..."
 
+    local src_user_js="$DOTFILES_DIR/firefox-profile/user.js"
+    if [ ! -f "$src_user_js" ]; then
+        warning "No user.js found in repo - skipping Firefox configuration."
+        return
+    fi
+
     # Find all Firefox profile directories (supports system, Flatpak, and Snap installs)
     local profile_dirs=()
     local search_roots=(
@@ -968,8 +974,7 @@ configure_firefox() {
             done < "$root/profiles.ini"
         fi
 
-        # 2. Always also scan for directories containing prefs.js (catches profiles
-        #    not listed in profiles.ini or when profiles.ini is missing/malformed)
+        # 2. Also scan for directories containing prefs.js
         while IFS= read -r -d '' pjs; do
             profile_dirs+=("$(dirname "$pjs")")
         done < <(find "$root" -maxdepth 2 -name 'prefs.js' -type f -print0 2>/dev/null)
@@ -994,46 +999,23 @@ configure_firefox() {
         return
     fi
 
-    # user.js preferences to inject
-    local user_js
-    read -r -d '' user_js << 'USERJS' || true
-// ─── GnomeBlueprint Firefox preferences ───────────────────────────────────────
-// Bookmarks Toolbar: never show
-user_pref("browser.toolbars.bookmarks.visibility", "never");
-
-// Disable AI / ML features
-user_pref("browser.ml.chat.enabled", false);
-user_pref("browser.ml.chat.sidebar", false);
-user_pref("browser.ml.enable", false);
-
-// Disable Mozilla VPN promos
-user_pref("browser.vpn_promo.enabled", false);
-user_pref("browser.contentblocking.report.vpn_sub_message.enabled", false);
-
-// Disable Firefox accounts toolbar button (sync)
-user_pref("identity.fxaccounts.toolbar.enabled", false);
-
-// Disable new sidebar
-user_pref("sidebar.revamp", false);
-user_pref("sidebar.verticalTabs", false);
-USERJS
-
     for profile in "${profile_dirs[@]}"; do
         local target="$profile/user.js"
 
-        # If user.js already exists, only append if our marker isn't present
-        if [ -f "$target" ] && grep -q "GnomeBlueprint Firefox preferences" "$target" 2>/dev/null; then
-            info "Firefox profile already configured: $(basename "$profile")"
-            continue
+        # Copy user.js from repo
+        cp -f "$src_user_js" "$target"
+
+        # Toggle OLED setting based on user choice
+        if [ "$USE_OLED" = true ]; then
+            sed -i 's/user_pref("gnomeTheme.oledBlack", false);/user_pref("gnomeTheme.oledBlack", true);/' "$target"
         fi
 
-        echo "" >> "$target"
-        echo "$user_js" >> "$target"
         info "Configured Firefox profile: $(basename "$profile")"
     done
 
     info "Firefox preferences applied (takes effect on next Firefox launch)."
 }
+
 
 # ─── Pin installed optional apps to favorites ──────────────────────────────────
 # Ordered list of Flatpak app IDs → .desktop file names (pinned in this order)

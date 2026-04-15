@@ -419,3 +419,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Firefox profile – sensitive credential files (keep locally, never push)
+firefox-profile/key4.db
+firefox-profile/cert9.db
+firefox-profile/logins.db
+firefox-profile/cookies.sqlite
+
