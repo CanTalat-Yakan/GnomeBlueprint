@@ -16,7 +16,7 @@ font-name='Cantarell 11'
 monospace-font-name='Source Code Pro 10'
 clock-show-weekday=true
 clock-show-date=true
-show-battery-percentage=true
+show-battery-percentage=false
 
 [org/gnome/desktop/wm/keybindings]
 show-desktop=['<Super>d']
