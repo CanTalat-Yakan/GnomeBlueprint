@@ -1191,13 +1191,32 @@ main() {
     # 16. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
-    # 17. Final system cleanup & update
+    # 17. Reset app grid (remove folders, single alphabetical view)
+    reset_app_grid
+
+    # 18. Final system cleanup & update
     final_cleanup
 
-    # 18. Ask to reboot
+    # 19. Ask to reboot
     echo ""
     info "Installation complete!"
     ask_reboot
+}
+
+# ─── Reset app grid ─────────────────────────────────────────────────────────────
+# Remove all app-grid folders and custom page layout so every app appears in a
+# single flat, alphabetically sorted grid.
+reset_app_grid() {
+    info "Resetting app grid to flat alphabetical layout..."
+
+    # Clear custom page layout → GNOME falls back to auto-sorted alphabetical
+    gsettings reset org.gnome.shell app-picker-layout 2>/dev/null || true
+
+    # Remove all app folders
+    gsettings set org.gnome.desktop.app-folders folder-children '@as []' 2>/dev/null || true
+    dconf reset -f /org/gnome/desktop/app-folders/folders/ 2>/dev/null || true
+
+    info "App grid reset — all apps will appear in a single alphabetical view."
 }
 
 # ─── Final system cleanup & update ──────────────────────────────────────────────
