@@ -1391,7 +1391,7 @@ ask_reboot() {
     local do_reboot=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        if gum confirm "  Reboot now to apply all changes?"; then
+        if gum confirm --default=no "  Reboot now to apply all changes?"; then
             do_reboot=true
         fi
     else
