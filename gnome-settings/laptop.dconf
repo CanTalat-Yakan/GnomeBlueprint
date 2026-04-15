@@ -33,6 +33,10 @@ workspaces-only-on-primary=true
 [org/gnome/shell]
 favorite-apps=['org.mozilla.firefox.desktop', 'org.gnome.Ptyxis.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Software.desktop']
 enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'clipboard-history@alexsaveau.dev', 'dash-to-dock@micxgx.gmail.com', 'just-perfection-desktop@just-perfection', 'panel-corners@aunetx', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'azwallpaper@azwallpaper.gitlab.com']
+app-picker-layout=@aa{sv} []
+
+[org/gnome/desktop/app-folders]
+folder-children=@as []
 
 [org/gnome/desktop/input-sources]
 sources=@a(ss) []

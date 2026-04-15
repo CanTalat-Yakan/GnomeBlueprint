@@ -1204,10 +1204,14 @@ reset_app_grid() {
 
     # Clear custom page layout → GNOME falls back to auto-sorted alphabetical
     gsettings reset org.gnome.shell app-picker-layout 2>/dev/null || true
+    dconf write /org/gnome/shell/app-picker-layout '@aa{sv} []' 2>/dev/null || true
 
-    # Remove all app folders
+    # Remove all app folders and their definitions
     gsettings set org.gnome.desktop.app-folders folder-children '@as []' 2>/dev/null || true
     dconf reset -f /org/gnome/desktop/app-folders/folders/ 2>/dev/null || true
+
+    # Disable the folders feature entirely
+    dconf write /org/gnome/desktop/app-folders/folder-children '@as []' 2>/dev/null || true
 
     info "App grid reset — all apps will appear in a single alphabetical view."
 }
