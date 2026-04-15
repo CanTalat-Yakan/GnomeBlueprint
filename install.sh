@@ -1172,9 +1172,10 @@ main() {
     # 17. Final system cleanup & update
     final_cleanup
 
+    # 18. Ask to reboot
     echo ""
-    info "Installation complete! Log out and back in for all changes to take effect."
-    echo ""
+    info "Installation complete!"
+    ask_reboot
 }
 
 # ─── Final system cleanup & update ──────────────────────────────────────────────
@@ -1235,6 +1236,33 @@ final_cleanup() {
     rm -rf ~/.cache/thumbnails/* 2>/dev/null || true
 
     info "System cleanup complete."
+}
+
+# ─── Ask to reboot ──────────────────────────────────────────────────────────────
+ask_reboot() {
+    echo ""
+    local do_reboot=false
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        if gum confirm "  Reboot now to apply all changes?"; then
+            do_reboot=true
+        fi
+    else
+        echo -e "${CYAN}${BOLD}Reboot now to apply all changes?${NC} [y/N]"
+        local answer
+        read -rp "> " answer
+        case "$answer" in
+            [yY]*) do_reboot=true ;;
+        esac
+    fi
+
+    if [ "$do_reboot" = true ]; then
+        info "Rebooting..."
+        sudo reboot
+    else
+        info "Skipping reboot. Please reboot manually for all changes to take effect."
+        echo ""
+    fi
 }
 
 main "$@"
