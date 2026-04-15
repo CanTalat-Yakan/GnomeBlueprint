@@ -307,7 +307,7 @@ OPTIONAL_APPS=(
     # Entertainment
     "Spotify|flatpak:com.spotify.Client"
     "Discord|flatpak:com.discordapp.Discord"
-    "Signal Messenger|flatpak:org.signal.Signal"
+    "Signal|flatpak:org.signal.Signal"
     "Steam|flatpak:com.valvesoftware.Steam"
     "VLC Media Player|flatpak:org.videolan.VLC"
     # Creative
@@ -321,6 +321,8 @@ OPTIONAL_APPS=(
     "Trayscale (Tailscale GUI)|flatpak:dev.deedles.Trayscale"
     # Runtimes
     ".NET SDK & Runtimes|script:dotnet"
+    # Developer Tools
+    "OpenCode (AI coding agent)|script:opencode"
 )
 
 # ─── .NET SDK installer (via Microsoft install script) ─────────────────────────
@@ -345,6 +347,25 @@ install_dotnet() {
         warning "Add this to your shell profile to use dotnet:"
         warning "  export DOTNET_ROOT=\"\$HOME/.dotnet\""
         warning "  export PATH=\"\$HOME/.dotnet:\$PATH\""
+    fi
+}
+
+# ─── OpenCode installer (AI coding agent) ──────────────────────────────────────
+install_opencode() {
+    if command -v opencode &>/dev/null; then
+        info "OpenCode is already installed."
+        return
+    fi
+
+    info "Installing OpenCode..."
+    curl -fsSL https://opencode.ai/install | bash \
+        || warning "OpenCode install encountered an error."
+
+    if command -v opencode &>/dev/null; then
+        info "OpenCode installed successfully."
+    else
+        warning "OpenCode binary not found on PATH after install."
+        warning "You may need to restart your shell or add ~/.local/bin to PATH."
     fi
 }
 
@@ -408,6 +429,7 @@ select_and_install_optional_apps() {
                     script)
                         case "$install_id" in
                             dotnet) install_dotnet ;;
+                            opencode) install_opencode ;;
                             *) warning "Unknown install script: $install_id" ;;
                         esac
                         ;;
