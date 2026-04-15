@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-info() { echo -e "\033[0;32m[INFO]\033[0m  $*"; }
+info() { echo -e "\033[0;36m[INFO]\033[0m  $*"; }
 
 info "Applying Desktop profile settings..."
 
@@ -36,7 +36,7 @@ if command -v gsettings &>/dev/null; then
     # Just Perfection - panel at the bottom, clock on the right (desktop layout)
     gsettings set org.gnome.shell.extensions.just-perfection panel-position 1 \
         2>/dev/null || true
-    gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 2 \
+    gsettings set org.gnome.shell.extensions.just-perfection clock-menu-position 1 \
         2>/dev/null || true
 fi
 

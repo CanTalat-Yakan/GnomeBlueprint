@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-info() { echo -e "\033[0;32m[INFO]\033[0m  $*"; }
+info() { echo -e "\033[0;36m[INFO]\033[0m  $*"; }
 
 info "Applying Laptop profile settings..."
 

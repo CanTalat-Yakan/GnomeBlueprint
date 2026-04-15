@@ -12,7 +12,6 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
-GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
 CYAN='\033[0;36m'
