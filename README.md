@@ -12,8 +12,6 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 
 ![gnomeblueprint.png](.github/assets/gnomeblueprint.png)
 
----
-
 ## 🔄 What the installer does
 
 | Step | Description |
@@ -64,8 +62,6 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 
 > Extensions that don't list the current GNOME Shell version are **automatically patched** via `metadata.json` so they load without waiting for an upstream update.
 
----
-
 ## 🎛️ Optional Applications (interactive chooser)
 
 Pick any combination from the TUI menu:
@@ -80,8 +76,6 @@ Pick any combination from the TUI menu:
 
 Installed optional apps are automatically **pinned to the dock**.
 
----
-
 ## 🖥️ Desktop Profile
 
 - Panel at **bottom**, clock on the **right**
@@ -89,8 +83,6 @@ Installed optional apps are automatically **pinned to the dock**.
 - Blank screen: never / no idle dim
 - No touchpad natural scroll / tap-to-click
 - `Super+D` show desktop, `Super+E` files, `Super+T` terminal, `Super+Space` ArcMenu runner
-
----
 
 ## 💻 Laptop Profile
 
@@ -101,8 +93,6 @@ Installed optional apps are automatically **pinned to the dock**.
 - Tap-to-click, natural scroll, two-finger scrolling
 - Same keyboard shortcuts as Desktop
 
----
-
 ## 🎨 Theming
 
 - **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
@@ -111,8 +101,6 @@ Installed optional apps are automatically **pinned to the dock**.
 - Prompts for an **Oled** preference to apply pure-black styling to Rewaita, Firefox, Terminal, and Text Editor
 - Automatically configures **Add Water** and injects `user.js` to theme and lock down Firefox (disabling AI/bloat)
 
----
-
 ## 🗑️ Bloat Removal
 
 When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
@@ -120,8 +108,6 @@ When confirmed, the installer removes these pre-installed apps (Flatpak + RPM wi
 > Boxes · Characters · Connections · Contacts · Extensions · Disks · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · Parental Controls · System Monitor · Tour · Weather
 
 RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
-
----
 
 ## 🗂️ Project Structure
 
@@ -144,8 +130,6 @@ GnomeBlueprint/
 ├── LICENSE                     # GNU GPL v3.0
 └── README.md
 ```
-
----
 
 ## 🔧 Customisation
 
@@ -171,8 +155,6 @@ dconf dump / > ~/.dotfiles/gnome-settings/laptop.dconf
 ```
 
 Then commit and push so future installs pick them up.
-
----
 
 ## 📄 License
 
