@@ -822,6 +822,21 @@ ask_oled_preference() {
 
     if [ "$use_oled" = false ]; then
         info "Using standard dark theme."
+
+        # Set Text Editor to Adwaita Dark
+        gsettings set org.gnome.TextEditor style-scheme 'Adwaita-dark' 2>/dev/null || true
+
+        # Set Terminal (Ptyxis) palette to GNOME (default)
+        local profile_uuid
+        profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+        if [ -z "$profile_uuid" ]; then
+            profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
+                | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+        fi
+        if [ -n "$profile_uuid" ]; then
+            dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'gnome'" 2>/dev/null || true
+        fi
+
         return
     fi
 
