@@ -169,6 +169,7 @@ GNOME_EXTENSIONS=(
     "dash-to-dock@micxgx.gmail.com|Dash to Dock"
     "just-perfection-desktop@just-perfection|Just Perfection"
     "panel-corners@aunetx|Panel Corners"
+    "restartto@tiagoporsch.github.io|Restart To"
     "user-theme@gnome-shell-extensions.gcampax.github.com|User Themes"
     "azwallpaper@azwallpaper.gitlab.com|Wallpaper Slideshow"
 )
