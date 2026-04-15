@@ -1031,7 +1031,10 @@ ask_download_wallpapers() {
 # Use "-" if no flatpak or no dnf package exists for that app.
 GNOME_BLOAT_APPS=(
     "org.gnome.Boxes|gnome-boxes|Boxes"
+    "org.gnome.Calendar|gnome-calendar|Calendar"
+    "org.gnome.Snapshot|snapshot|Camera"
     "org.gnome.Characters|gnome-characters|Characters"
+    "org.gnome.clocks|gnome-clocks|Clocks"
     "org.gnome.Connections|gnome-connections|Connections"
     "org.gnome.Contacts|gnome-contacts|Contacts"
     "org.gnome.Extensions|gnome-extensions-app|Extensions"
