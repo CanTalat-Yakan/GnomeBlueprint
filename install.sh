@@ -516,6 +516,7 @@ ask_user_preferences() {
         "Use 24-hour time format"
         "Login without asking for password (auto-login)"
         "Blank screen: Never (display stays on)"
+        "Disable automatic screen lock"
         "Preserve battery (power-saver profile)"
     )
 
@@ -573,6 +574,10 @@ ask_user_preferences() {
                 info "Setting blank screen to Never..."
                 gsettings set org.gnome.desktop.session idle-delay 0 2>/dev/null || true
                 gsettings set org.gnome.settings-daemon.plugins.power idle-dim false 2>/dev/null || true
+                ;;
+            "Disable automatic screen lock")
+                info "Disabling automatic screen lock..."
+                gsettings set org.gnome.desktop.screensaver lock-enabled false 2>/dev/null || true
                 ;;
             "Preserve battery (power-saver profile)")
                 info "Setting power profile to power-saver..."
@@ -639,67 +644,40 @@ declare -A BLOAT_DNF_PACKAGES=(
 
 ask_uninstall_bloat() {
     echo ""
-    info "Uninstall unnecessary GNOME applications?"
-    echo ""
-
-    local labels=()
-    for entry in "${GNOME_BLOAT_APPS[@]}"; do
-        labels+=("${entry##*|}")
-    done
-
-    local selected=()
+    local do_remove=false
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
-        local raw
-        raw=$(gum choose --no-limit \
-            --selected="${labels[0]}" \
-            --header.foreground="212" \
-            --header "  Select bloat to uninstall (↑/↓ move, Space select, Enter confirm):" \
-            "${labels[@]}") || true
-        if [ -n "$raw" ]; then
-            while IFS= read -r line; do
-                selected+=("$line")
-            done <<< "$raw"
+        if gum confirm "  Uninstall GNOME bloat? (Boxes, Characters, Connections, Contacts, etc.)"; then
+            do_remove=true
         fi
     else
-        echo -e "${CYAN}${BOLD}GNOME bloat applications:${NC}"
-        for i in "${!labels[@]}"; do
-            printf "  %2d) %s\n" "$((i + 1))" "${labels[$i]}"
-        done
-        echo ""
-        echo "Enter numbers to uninstall (space-separated), or press Enter to skip:"
-        local choices
-        read -rp "> " choices
-        for num in $choices; do
-            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#labels[@]}" ]; then
-                selected+=("${labels[$((num - 1))]}")
-            fi
-        done
+        echo -e "${CYAN}${BOLD}Uninstall GNOME bloat?${NC} (Boxes, Characters, Connections, Contacts, etc.) [y/N]"
+        local answer
+        read -rp "> " answer
+        case "$answer" in
+            [yY]*) do_remove=true ;;
+        esac
     fi
 
-    if [ ${#selected[@]} -eq 0 ]; then
-        info "No bloat apps selected for removal."
+    if [ "$do_remove" = false ]; then
+        info "Skipping bloat removal."
         return
     fi
 
-    info "Removing ${#selected[@]} application(s)..."
+    info "Removing all GNOME bloat applications..."
 
-    for sel in "${selected[@]}"; do
-        # Try removing as Flatpak first
-        for entry in "${GNOME_BLOAT_APPS[@]}"; do
-            local app_id="${entry%%|*}"
-            local label="${entry##*|}"
-            if [ "$label" = "$sel" ]; then
-                if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
-                    info "Removing Flatpak: $sel..."
-                    flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove Flatpak $sel."
-                fi
-                break
-            fi
-        done
+    for entry in "${GNOME_BLOAT_APPS[@]}"; do
+        local app_id="${entry%%|*}"
+        local label="${entry##*|}"
+
+        # Try removing as Flatpak
+        if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
+            info "Removing Flatpak: $label..."
+            flatpak uninstall -y "$app_id" 2>/dev/null || warning "Failed to remove Flatpak $label."
+        fi
 
         # Also try removing the RPM/system package
-        local pkg="${BLOAT_DNF_PACKAGES[$sel]:-}"
+        local pkg="${BLOAT_DNF_PACKAGES[$label]:-}"
         if [ -n "$pkg" ] && command -v dnf &>/dev/null; then
             if rpm -q "$pkg" &>/dev/null; then
                 info "Removing system package: $pkg..."

@@ -68,8 +68,6 @@ idle-dim=true
 [org/gnome/desktop/session]
 idle-delay=uint32 300
 
-[org/gnome/desktop/screensaver]
-lock-enabled=false
 
 [org/gnome/desktop/peripherals/touchpad]
 tap-to-click=true
