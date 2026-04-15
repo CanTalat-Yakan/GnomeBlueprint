@@ -307,6 +307,7 @@ OPTIONAL_APPS=(
     # Entertainment
     "Spotify|flatpak:com.spotify.Client"
     "Discord|flatpak:com.discordapp.Discord"
+    "Signal Messenger|flatpak:org.signal.Signal"
     "Steam|flatpak:com.valvesoftware.Steam"
     "VLC Media Player|flatpak:org.videolan.VLC"
     # Creative
@@ -609,6 +610,8 @@ configure_nautilus() {
 
     # Sort folders before files
     gsettings set org.gnome.nautilus.preferences sort-directories-first true 2>/dev/null || true
+    # Default to list view
+    gsettings set org.gnome.nautilus.preferences default-folder-viewer 'list-view' 2>/dev/null || true
     # Show "Create Link" in context menu
     gsettings set org.gnome.nautilus.preferences show-create-link true 2>/dev/null || true
     # Show "Delete Permanently" in context menu
@@ -643,6 +646,73 @@ configure_nautilus() {
     done
 
     info "Nautilus configuration complete."
+}
+
+# ─── Adwaita theme setup (adw-gtk3 + Flatpak overrides) ────────────────────────
+setup_themes() {
+    info "Setting up Adwaita themes..."
+
+    # Install adw-gtk3 theme (makes GTK3 apps match GTK4 Adwaita)
+    if command -v dnf &>/dev/null; then
+        if ! rpm -q adw-gtk3-theme &>/dev/null 2>&1; then
+            info "Installing adw-gtk3-theme..."
+            sudo dnf install -y adw-gtk3-theme || warning "Could not install adw-gtk3-theme."
+        else
+            info "adw-gtk3-theme is already installed."
+        fi
+    fi
+
+    # Apply adw-gtk3-dark as GTK theme (for GTK3 apps)
+    gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark' 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
+
+    # Allow Flatpak apps to access GTK themes
+    flatpak override --user --filesystem=xdg-config/gtk-4.0 2>/dev/null || true
+    flatpak override --user --filesystem=xdg-config/gtk-3.0 2>/dev/null || true
+
+    info "Themes applied. Open Add Water to apply Adwaita theme to Firefox."
+    info "Open Rewaita to browse and apply Adwaita icon theme variants."
+}
+
+# ─── Pin installed optional apps to favorites ──────────────────────────────────
+# Maps Flatpak app IDs to their .desktop file names
+declare -A OPTIONAL_DESKTOP_FILES=(
+    ["com.spotify.Client"]="com.spotify.Client.desktop"
+    ["com.discordapp.Discord"]="com.discordapp.Discord.desktop"
+    ["org.signal.Signal"]="org.signal.Signal.desktop"
+    ["com.valvesoftware.Steam"]="com.valvesoftware.Steam.desktop"
+    ["org.videolan.VLC"]="org.videolan.VLC.desktop"
+    ["org.blender.Blender"]="org.blender.Blender.desktop"
+    ["org.gimp.GIMP"]="org.gimp.GIMP.desktop"
+    ["com.unity.UnityHub"]="com.unity.UnityHub.desktop"
+    ["com.visualstudio.code"]="com.visualstudio.code.desktop"
+    ["com.jetbrains.Rider"]="com.jetbrains.Rider.desktop"
+    ["io.github.shiftey.Desktop"]="io.github.shiftey.Desktop.desktop"
+    ["dev.deedles.Trayscale"]="dev.deedles.Trayscale.desktop"
+)
+
+pin_optional_apps_to_favorites() {
+    # Get current favorites
+    local current_favs
+    current_favs=$(gsettings get org.gnome.shell favorite-apps 2>/dev/null) || return
+
+    local changed=false
+
+    for app_id in "${!OPTIONAL_DESKTOP_FILES[@]}"; do
+        if flatpak list --app --columns=application 2>/dev/null | grep -qx "$app_id"; then
+            local desktop="${OPTIONAL_DESKTOP_FILES[$app_id]}"
+            if ! echo "$current_favs" | grep -q "'${desktop}'"; then
+                # Append before the closing bracket
+                current_favs="${current_favs%]*}, '${desktop}']"
+                changed=true
+                info "Pinned $desktop to favorites."
+            fi
+        fi
+    done
+
+    if [ "$changed" = true ]; then
+        gsettings set org.gnome.shell favorite-apps "$current_favs" 2>/dev/null || true
+    fi
 }
 
 # ─── Uninstall GNOME bloatware (Flatpak only) ──────────────────────────────────
@@ -731,21 +801,27 @@ main() {
     install_gnome_extensions
     restart_gnome_shell
 
-    # 6. User preferences (24h clock, auto-login, blank screen, battery)
+    # 6. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
+    setup_themes
+
+    # 7. User preferences (24h clock, auto-login, blank screen, battery)
     ask_user_preferences
 
-    # 7. Nautilus configuration (sort, context menu, starred folders)
+    # 8. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
 
-    # 8. Ask to uninstall GNOME bloat
+    # 9. Ask to uninstall GNOME bloat
     ask_uninstall_bloat
 
-    # 9. Optional applications (interactive chooser — includes Trayscale)
+    # 10. Optional applications (interactive chooser — includes Trayscale)
     select_and_install_optional_apps
 
-    # 10. Apply profile-specific settings
+    # 11. Apply profile-specific settings
     import_gnome_settings "$profile"
     run_profile "$profile"
+
+    # 12. Pin any installed optional apps to dock favorites
+    pin_optional_apps_to_favorites
 
     echo ""
     info "Installation complete! Log out and back in for all changes to take effect."
