@@ -60,6 +60,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 
 | Application | Flatpak ID | Description |
 |---|---|---|
+| Firefox | `firefox` (system package) | Web browser |
 | Flatseal | `com.github.tchx84.Flatseal` | Manage Flatpak permissions |
 | Extension Manager | `com.mattjakeman.ExtensionManager` | Browse & toggle GNOME extensions |
 | Pins | `io.github.fabrialberio.pinapp` | Create custom app shortcuts |

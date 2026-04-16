@@ -234,6 +234,23 @@ install_essential_flatpaks() {
         install_one_flatpak "$app"
     done
 
+    # Install Firefox if not already present (prefer RPM over Flatpak)
+    if ! command -v firefox &>/dev/null && ! flatpak list 2>/dev/null | grep -q org.mozilla.firefox; then
+        info "Installing Firefox..."
+        if command -v dnf &>/dev/null; then
+            sudo dnf install -y firefox \
+                || warning "Could not install Firefox via dnf."
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -Sy --noconfirm firefox \
+                || warning "Could not install Firefox via pacman."
+        elif command -v apt-get &>/dev/null; then
+            sudo apt-get install -y firefox \
+                || warning "Could not install Firefox via apt."
+        else
+            warning "Could not determine package manager to install Firefox."
+        fi
+    fi
+
     # Install GNOME Tweaks (system package, not available as Flatpak)
     info "Installing GNOME Tweaks..."
     if command -v dnf &>/dev/null; then
