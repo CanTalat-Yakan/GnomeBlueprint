@@ -38,7 +38,6 @@ enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.c
 folder-children=@as []
 
 [org/gnome/desktop/input-sources]
-sources=@a(ss) []
 xkb-options=@as []
 
 [org/gnome/settings-daemon/plugins/media-keys]
