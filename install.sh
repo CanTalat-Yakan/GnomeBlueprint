@@ -935,7 +935,7 @@ with open(path, 'w') as f:
 #   • Switch Rewaita dark theme to the Oled variant
 #   • Enable Add Water "True Black" (oled-black) for Firefox
 #   • Set GNOME Text Editor appearance to Classic Dark
-#   • Set terminal (Ptyxis) palette to XTerm
+#   • Set terminal (Ptyxis) palette to Dark Pastel
 ask_oled_preference() {
     echo ""
 
@@ -1021,7 +1021,7 @@ with open(path, 'w') as f:
     gsettings set org.gnome.TextEditor style-scheme 'classic-dark' 2>/dev/null || true
     info "Text Editor set to Classic Dark."
 
-    # 4. Terminal (Ptyxis) → XTerm palette
+    # 4. Terminal (Ptyxis) → Dark Pastel palette
     #    Ptyxis stores palette per-profile with UUID-based dconf paths.
     #    Find the existing default profile UUID, or launch Ptyxis briefly to create one.
     if ! command -v ptyxis &>/dev/null; then
@@ -1060,10 +1060,10 @@ with open(path, 'w') as f:
         fi
 
         if [ -n "$profile_uuid" ]; then
-            dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'XTerm'" 2>/dev/null || true
+            dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'Dark Pastel'" 2>/dev/null || true
             # Kill Ptyxis so it restarts with the new palette applied
             pkill -x ptyxis 2>/dev/null || true
-            info "Terminal palette set to XTerm."
+            info "Terminal palette set to Dark Pastel."
         else
             warning "Could not determine Ptyxis profile UUID - set terminal palette manually."
         fi
