@@ -54,6 +54,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 13 | Lets you pick **optional apps** (Spotify, Discord, Steam, VS Code, OpenCode, etc.) |
 | 14 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
 | 15 | **Resets the app grid** to a single flat alphabetical layout |
+| 16 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
 
 ## Essential Applications (always installed)
 

@@ -1603,13 +1603,56 @@ BANNER
     # 19. Reset app grid (remove folders, single alphabetical view)
     reset_app_grid
 
-    # 20. Final system cleanup & update
+    # 20. Detect & install NVIDIA drivers
+    install_nvidia_drivers
+
+    # 21. Final system cleanup & update
     final_cleanup
 
-    # 21. Ask to reboot
+    # 22. Ask to reboot
     echo ""
     info "Installation complete!"
     ask_reboot
+}
+
+# ─── NVIDIA driver installation ──────────────────────────────────────────────
+install_nvidia_drivers() {
+    # Check if an NVIDIA GPU is present
+    if ! lspci | grep -qi 'nvidia'; then
+        return
+    fi
+
+    info "NVIDIA GPU detected: $(lspci | grep -i 'nvidia' | head -1 | sed 's/.*: //')"
+
+    # Check if NVIDIA drivers are already installed
+    if modinfo nvidia &>/dev/null; then
+        local current_ver
+        current_ver=$(modinfo -F version nvidia 2>/dev/null || echo "unknown")
+        info "NVIDIA driver already installed (version $current_ver). Skipping."
+        return
+    fi
+
+    local do_nvidia=false
+    if command -v gum &>/dev/null; then
+        if gum confirm --default=yes "  Install NVIDIA proprietary drivers?"; then
+            do_nvidia=true
+        fi
+    else
+        echo -e "${CYAN}${BOLD}Install NVIDIA proprietary drivers?${NC} [Y/n]"
+        read -r answer
+        case "$answer" in
+            [nN]*) ;;
+            *) do_nvidia=true ;;
+        esac
+    fi
+
+    if [ "$do_nvidia" = true ]; then
+        info "Installing NVIDIA drivers (akmod-nvidia + CUDA + VA-API)..."
+        sudo dnf install -y akmod-nvidia || warning "Failed to install akmod-nvidia."
+        sudo dnf install -y xorg-x11-drv-nvidia-cuda || warning "Failed to install nvidia-cuda."
+        sudo dnf install -y nvidia-vaapi-driver libva-utils || warning "Failed to install VA-API drivers."
+        info "NVIDIA drivers installed. A reboot is required to build the kernel module."
+    fi
 }
 
 # ─── Reset app grid ─────────────────────────────────────────────────────────────
