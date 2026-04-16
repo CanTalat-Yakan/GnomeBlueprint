@@ -159,10 +159,21 @@ install_docker() {
             docker-common docker-latest docker-latest-logrotate \
             docker-logrotate docker-engine podman-docker 2>/dev/null || true
 
-        # Add Docker CE repo
-        sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo \
-            2>/dev/null || sudo dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo \
+        # Add Docker CE repo - use Fedora base for Fedora derivatives
+        local docker_repo="https://download.docker.com/linux/fedora/docker-ce.repo"
+        sudo dnf config-manager addrepo --from-repofile="$docker_repo" \
+            2>/dev/null || sudo dnf config-manager --add-repo "$docker_repo" \
             2>/dev/null || { warning "Could not add Docker repo - skipping."; return; }
+
+        # Fix $releasever for non-Fedora derivatives
+        # Docker only publishes repos for actual Fedora versions
+        if [ -f /etc/yum.repos.d/docker-ce.repo ]; then
+            local fedora_ver
+            fedora_ver=$(rpm -E %fedora 2>/dev/null) || true
+            if [ -n "$fedora_ver" ]; then
+                sudo sed -i "s|\$releasever|${fedora_ver}|g" /etc/yum.repos.d/docker-ce.repo 2>/dev/null || true
+            fi
+        fi
 
         sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
             || { warning "Docker install failed - skipping."; return; }
@@ -662,14 +673,22 @@ ask_user_preferences() {
                 info "Enabling automatic login..."
                 local current_user
                 current_user=$(whoami)
-                sudo mkdir -p /etc/gdm 2>/dev/null || true
-                # Works for GDM (Fedora/GNOME default)
-                if [ -f /etc/gdm/custom.conf ]; then
-                    sudo sed -i '/^\[daemon\]/,/^\[/ { /^AutomaticLoginEnable/d; /^AutomaticLogin=/d; }' /etc/gdm/custom.conf
-                    sudo sed -i "/^\[daemon\]/a AutomaticLoginEnable=True\nAutomaticLogin=${current_user}" /etc/gdm/custom.conf
+                # Find GDM config file (varies by distro)
+                local gdm_conf=""
+                for f in /etc/gdm/custom.conf /etc/gdm3/custom.conf; do
+                    if [ -f "$f" ]; then gdm_conf="$f"; break; fi
+                done
+                if [ -z "$gdm_conf" ]; then
+                    # Create default location
+                    sudo mkdir -p /etc/gdm 2>/dev/null || true
+                    gdm_conf="/etc/gdm/custom.conf"
+                fi
+                if [ -f "$gdm_conf" ]; then
+                    sudo sed -i '/^\[daemon\]/,/^\[/ { /^AutomaticLoginEnable/d; /^AutomaticLogin=/d; }' "$gdm_conf"
+                    sudo sed -i "/^\[daemon\]/a AutomaticLoginEnable=True\nAutomaticLogin=${current_user}" "$gdm_conf"
                 else
                     echo -e "[daemon]\nAutomaticLoginEnable=True\nAutomaticLogin=${current_user}" \
-                        | sudo tee /etc/gdm/custom.conf > /dev/null
+                        | sudo tee "$gdm_conf" > /dev/null
                 fi
                 info "Automatic login enabled for user '${current_user}'."
                 ;;
@@ -810,6 +829,16 @@ setup_themes() {
             sudo dnf install -y adw-gtk3-theme || warning "Could not install adw-gtk3-theme."
         else
             info "adw-gtk3-theme is already installed."
+        fi
+    elif command -v pacman &>/dev/null; then
+        if ! pacman -Qi adw-gtk3 &>/dev/null 2>&1; then
+            info "Installing adw-gtk3..."
+            sudo pacman -Sy --noconfirm adw-gtk3 2>/dev/null \
+                || { if command -v yay &>/dev/null; then yay -S --noconfirm adw-gtk3; \
+                     elif command -v paru &>/dev/null; then paru -S --noconfirm adw-gtk3; \
+                     else warning "Could not install adw-gtk3 - install manually from AUR."; fi; }
+        else
+            info "adw-gtk3 is already installed."
         fi
     fi
 
@@ -1102,6 +1131,8 @@ configure_firefox() {
             "/usr/lib/firefox"
             "/usr/lib64/firefox"
             "/usr/share/firefox"
+            "/usr/lib/firefox-esr"
+            "/opt/firefox"
             "/snap/firefox/current/usr/lib/firefox"
             "/var/lib/flatpak/app/org.mozilla.firefox/current/active/files/lib/firefox"
         )
@@ -1300,31 +1331,31 @@ ask_download_wallpapers() {
 }
 
 # ─── Uninstall GNOME bloatware ──────────────────────────────────────────────────
-# Format: "flatpak-id|dnf-package|Display Name"
-# Use "-" if no flatpak or no dnf package exists for that app.
+# Format: "flatpak-id|dnf-package|pacman-package|Display Name"
+# Use "-" if no flatpak/dnf/pacman package exists for that app.
 GNOME_BLOAT_APPS=(
-    "org.gnome.Boxes|gnome-boxes|Boxes"
-    "org.gnome.Calendar|gnome-calendar|Calendar"
-    "org.gnome.Snapshot|snapshot|Camera"
-    "org.gnome.Characters|gnome-characters|Characters"
-    "org.gnome.clocks|gnome-clocks|Clocks"
-    "org.gnome.Connections|gnome-connections|Connections"
-    "org.gnome.Contacts|gnome-contacts|Contacts"
-    "org.gnome.Extensions|gnome-extensions-app|Extensions"
-    "org.gnome.baobab|baobab|Disk Usage Analyser"
-    "org.gnome.SimpleScan|simple-scan|Document Scanner"
-    "org.fedoraproject.MediaWriter|mediawriter|Fedora Media Writer"
-    "org.gnome.Yelp|yelp|Help"
-    "-|libreoffice-calc|LibreOffice Calc"
-    "-|libreoffice-impress|LibreOffice Impress"
-    "-|libreoffice-writer|LibreOffice Writer"
-    "org.gnome.Maps|gnome-maps|Maps"
-    "org.gnome.SystemMonitor|gnome-system-monitor|System Monitor"
-    "org.gnome.Tour|gnome-tour|Tour"
-    "org.gnome.Weather|gnome-weather|Weather"
+    "org.gnome.Boxes|gnome-boxes|gnome-boxes|Boxes"
+    "org.gnome.Calendar|gnome-calendar|gnome-calendar|Calendar"
+    "org.gnome.Snapshot|snapshot|snapshot|Camera"
+    "org.gnome.Characters|gnome-characters|gnome-characters|Characters"
+    "org.gnome.clocks|gnome-clocks|gnome-clocks|Clocks"
+    "org.gnome.Connections|gnome-connections|gnome-connections|Connections"
+    "org.gnome.Contacts|gnome-contacts|gnome-contacts|Contacts"
+    "org.gnome.Extensions|gnome-extensions-app|gnome-extensions-app|Extensions"
+    "org.gnome.baobab|baobab|baobab|Disk Usage Analyser"
+    "org.gnome.SimpleScan|simple-scan|simple-scan|Document Scanner"
+    "org.fedoraproject.MediaWriter|mediawriter|-|Fedora Media Writer"
+    "org.gnome.Yelp|yelp|yelp|Help"
+    "-|libreoffice-calc|libreoffice-still-calc|LibreOffice Calc"
+    "-|libreoffice-impress|libreoffice-still-impress|LibreOffice Impress"
+    "-|libreoffice-writer|libreoffice-still-writer|LibreOffice Writer"
+    "org.gnome.Maps|gnome-maps|gnome-maps|Maps"
+    "org.gnome.SystemMonitor|gnome-system-monitor|gnome-system-monitor|System Monitor"
+    "org.gnome.Tour|gnome-tour|gnome-tour|Tour"
+    "org.gnome.Weather|gnome-weather|gnome-weather|Weather"
 )
 
-# Packages whose removal would break the desktop - never touch these via dnf.
+# Packages whose removal would break the desktop - never touch these via dnf/pacman.
 PROTECTED_RE="gnome-shell|gdm|mutter|gnome-session|gnome-settings-daemon"
 
 # Safely remove an RPM package: dry-run first, skip if it would cascade into
@@ -1346,6 +1377,26 @@ safe_dnf_remove() {
 
     info "Removing RPM: $pkg ($label)..."
     sudo dnf remove -y --noautoremove "$pkg" 2>/dev/null \
+        || warning "Failed to remove $pkg."
+}
+
+# Safely remove a pacman package (Arch-based systems)
+safe_pacman_remove() {
+    local pkg="$1" label="$2"
+
+    # Not installed - nothing to do
+    pacman -Qi "$pkg" &>/dev/null 2>&1 || return 0
+
+    # Check what would be removed - simulate and check for protected packages
+    local sim
+    sim=$(pacman -Rcs --print "$pkg" 2>&1 || true)
+    if echo "$sim" | grep -qEi "$PROTECTED_RE"; then
+        warning "Skipping $label ($pkg) - removing it would also remove core desktop packages."
+        return 0
+    fi
+
+    info "Removing package: $pkg ($label)..."
+    sudo pacman -Rns --noconfirm "$pkg" 2>/dev/null \
         || warning "Failed to remove $pkg."
 }
 
@@ -1377,6 +1428,8 @@ ask_uninstall_bloat() {
         local flatpak_id="${entry%%|*}"
         local rest="${entry#*|}"
         local dnf_pkg="${rest%%|*}"
+        rest="${rest#*|}"
+        local pacman_pkg="${rest%%|*}"
         local label="${rest#*|}"
 
         # 1. Try Flatpak removal (safe, no side-effects)
@@ -1391,6 +1444,9 @@ ask_uninstall_bloat() {
         # 2. Try RPM removal (with safety check)
         if [ "$dnf_pkg" != "-" ] && command -v dnf &>/dev/null; then
             safe_dnf_remove "$dnf_pkg" "$label"
+        # 3. Try pacman removal (Arch-based)
+        elif [ "$pacman_pkg" != "-" ] && command -v pacman &>/dev/null; then
+            safe_pacman_remove "$pacman_pkg" "$label"
         fi
     done
 
@@ -1550,6 +1606,20 @@ final_cleanup() {
     elif command -v pacman &>/dev/null; then
         info "Upgrading packages..."
         sudo pacman -Syu --noconfirm || warning "pacman update encountered an error."
+
+        # Remove orphaned packages
+        local orphans
+        orphans=$(pacman -Qdtq 2>/dev/null) || true
+        if [ -n "$orphans" ]; then
+            info "Removing orphaned packages..."
+            sudo pacman -Rns --noconfirm $orphans || warning "Could not remove orphans."
+        fi
+
+        # Clean package cache (keep latest 2 versions)
+        if command -v paccache &>/dev/null; then
+            info "Cleaning pacman cache..."
+            sudo paccache -rk2 2>/dev/null || true
+        fi
     fi
 
     # ── Flatpak cleanup ─────────────────────────────────────────────────────────
