@@ -1207,7 +1207,6 @@ GNOME_BLOAT_APPS=(
     "org.gnome.Connections|gnome-connections|Connections"
     "org.gnome.Contacts|gnome-contacts|Contacts"
     "org.gnome.Extensions|gnome-extensions-app|Extensions"
-    "org.gnome.DiskUtility|gnome-disk-utility|Disks"
     "org.gnome.baobab|baobab|Disk Usage Analyser"
     "org.gnome.SimpleScan|simple-scan|Document Scanner"
     "org.fedoraproject.MediaWriter|mediawriter|Fedora Media Writer"

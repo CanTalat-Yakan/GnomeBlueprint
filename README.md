@@ -131,7 +131,7 @@ Installed optional apps are automatically **pinned to the dock**.
 
 When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
 
-> Boxes · Characters · Connections · Contacts · Extensions · Disks · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · Parental Controls · System Monitor · Tour · Weather
+> Boxes · Characters · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · Parental Controls · System Monitor · Tour · Weather
 
 RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
 
