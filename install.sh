@@ -214,6 +214,7 @@ GNOME_EXTENSIONS=(
     "dash-to-dock@micxgx.gmail.com|Dash to Dock"
     "gtk4-ding@smedius.gitlab.com|Gtk4 Desktop Icons NG (DING)"
     "just-perfection-desktop@just-perfection|Just Perfection"
+    "logomenu@aryan_k|Logo Menu"
     "panel-corners@aunetx|Panel Corners"
     "pip-on-top@rafostar.github.com|PiP on top"
     "quick-settings-audio-panel@rayzeq.github.io|Quick Settings Audio Panel"

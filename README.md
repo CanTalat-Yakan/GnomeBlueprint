@@ -78,6 +78,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | Dash to Dock | `dash-to-dock@micxgx.gmail.com` |
 | Gtk4 Desktop Icons NG (DING) | `gtk4-ding@smedius.gitlab.com` |
 | Just Perfection | `just-perfection-desktop@just-perfection` |
+| Logo Menu | `logomenu@aryan_k` |
 | Panel Corners | `panel-corners@aunetx` |
 | PiP on top | `pip-on-top@rafostar.github.com` |
 | Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` |
