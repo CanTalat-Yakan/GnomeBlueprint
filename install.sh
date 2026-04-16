@@ -299,6 +299,11 @@ select_and_install_docker_services() {
                     fi
                 fi
 
+                # Remove NVIDIA GPU reservation if no NVIDIA GPU is present
+                if ! lspci | grep -qi 'nvidia'; then
+                    sed -i '/deploy:/,/capabilities: \[gpu\]/d' "$target_dir/docker-compose.yml" 2>/dev/null || true
+                fi
+
                 # Start the service
                 info "Starting ${label}..."
                 (cd "$target_dir" && docker compose up -d) \
