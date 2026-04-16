@@ -1170,6 +1170,7 @@ configure_firefox() {
         # Toggle Oled setting based on user choice
         if [ "$USE_OLED" = true ]; then
             sed -i 's/user_pref("gnomeTheme.oledBlack", false);/user_pref("gnomeTheme.oledBlack", true);/' "$target"
+            sed -i 's/user_pref("browser.display.background_color", "#2b2b2b");/user_pref("browser.display.background_color", "#000000");/' "$target"
         fi
 
 

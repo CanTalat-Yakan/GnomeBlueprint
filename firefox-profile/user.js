@@ -49,6 +49,8 @@ user_pref("browser.newtabpage.activity-stream.showSearch", false);
 user_pref("browser.newtabpage.activity-stream.showSponsoredCheckboxes", false);
 user_pref("browser.newtabpage.activity-stream.showSponsoredTopSites", false);
 user_pref("browser.newtabpage.activity-stream.showWeather", false);
+// New tab background color (overridden to #000000 for Oled)
+user_pref("browser.display.background_color", "#2b2b2b");
 
 // ─── Disable AI / ML features ─────────────────────────────────────────────────
 user_pref("browser.ai.control.default", "blocked");
