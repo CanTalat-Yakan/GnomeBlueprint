@@ -122,7 +122,17 @@ Installed optional apps are automatically **pinned to the dock**.
 
 ## Theming
 
-![screenshot.png](.github/assets/screenshot.png)
+### Desktop
+
+- Panel at the **bottom** with clock on the **right**
+
+![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
+
+### Laptop
+
+- Panel at the **top** (default) with clock in the **center**
+
+![screenshot-laptop.png](.github/assets/screenshot-laptop.png)
 
 - **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
 - Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
