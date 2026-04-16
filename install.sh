@@ -320,10 +320,10 @@ select_and_install_docker_services() {
                 if [ -n "$url" ]; then
                     cat > "$target_dir/Open ${label}.desktop" <<EOF
 [Desktop Entry]
-Type=Link
+Type=Application
 Name=Open ${label}
 Icon=web-browser
-URL=${url}
+Exec=xdg-open ${url}
 EOF
                     chmod +x "$target_dir/Open ${label}.desktop"
                 fi
