@@ -998,6 +998,56 @@ configure_nautilus() {
     info "Nautilus configuration complete."
 }
 
+# ─── Create ~/Templates for right-click "New Document" menu ─────────────────────
+setup_templates() {
+    local tpl_dir
+    tpl_dir=$(xdg-user-dir TEMPLATES 2>/dev/null || echo "$HOME/Templates")
+    info "Setting up Templates directory at ${tpl_dir}..."
+
+    mkdir -p "$tpl_dir"
+
+    # Text file
+    [ -f "$tpl_dir/untitled-document.txt" ] \
+        || touch "$tpl_dir/untitled-document.txt"
+
+    # Markdown
+    [ -f "$tpl_dir/untitled-document.md" ] \
+        || touch "$tpl_dir/untitled-document.md"
+
+    # Shell script
+    if [ ! -f "$tpl_dir/untitled-script.sh" ]; then
+        echo '#!/usr/bin/env bash' > "$tpl_dir/untitled-script.sh"
+        chmod +x "$tpl_dir/untitled-script.sh"
+    fi
+
+    # Python script
+    if [ ! -f "$tpl_dir/untitled-script.py" ]; then
+        echo '#!/usr/bin/env python3' > "$tpl_dir/untitled-script.py"
+    fi
+
+    # C# file
+    [ -f "$tpl_dir/untitled-class.cs" ] \
+        || touch "$tpl_dir/untitled-class.cs"
+
+    # HTML file
+    if [ ! -f "$tpl_dir/untitled-document.html" ]; then
+        cat > "$tpl_dir/untitled-document.html" << 'HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Untitled</title>
+</head>
+<body>
+
+</body>
+</html>
+HTML
+    fi
+
+    info "Templates directory ready ($(ls "$tpl_dir" | wc -l) templates)."
+}
+
 # ─── Configure app defaults (Terminal, Text Editor) ─────────────────────────────
 configure_app_defaults() {
     info "Configuring app defaults..."
@@ -1781,6 +1831,9 @@ BANNER
 
     # 12. Nautilus configuration (sort, list view, context menu, starred folders)
     configure_nautilus
+
+    # 12b. Create ~/Templates for right-click "New Document" menu
+    setup_templates
 
     # 13. App defaults (Terminal, Text Editor - disable session restore)
     configure_app_defaults
