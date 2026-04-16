@@ -1091,6 +1091,62 @@ configure_firefox() {
     done
 
     info "Firefox preferences applied (takes effect on next Firefox launch)."
+
+    # ── Deploy policies.json for search engine & toolbar policy ──
+    local src_policies="$DOTFILES_DIR/firefox-profile/policies.json"
+    if [ -f "$src_policies" ]; then
+        info "Deploying Firefox enterprise policies (search engine, toolbar)..."
+
+        # Possible Firefox installation directories
+        local firefox_dirs=(
+            "/usr/lib/firefox"
+            "/usr/lib64/firefox"
+            "/usr/share/firefox"
+            "/snap/firefox/current/usr/lib/firefox"
+            "/var/lib/flatpak/app/org.mozilla.firefox/current/active/files/lib/firefox"
+        )
+
+        # Also check common distro-specific locations
+        local found_any=false
+        for fdir in "${firefox_dirs[@]}"; do
+            if [ -d "$fdir" ]; then
+                local dist_dir="$fdir/distribution"
+                sudo mkdir -p "$dist_dir" 2>/dev/null || continue
+                if sudo cp -f "$src_policies" "$dist_dir/policies.json" 2>/dev/null; then
+                    sudo chmod 644 "$dist_dir/policies.json" 2>/dev/null
+                    info "Installed policies.json → $dist_dir/"
+                    found_any=true
+                fi
+            fi
+        done
+
+        # For Snap Firefox, also try the writable config path
+        local snap_dist="$HOME/snap/firefox/common/.mozilla/firefox/distribution"
+        if [ -d "$HOME/snap/firefox" ]; then
+            mkdir -p "$snap_dist" 2>/dev/null
+            cp -f "$src_policies" "$snap_dist/policies.json" 2>/dev/null && {
+                info "Installed policies.json → $snap_dist/"
+                found_any=true
+            }
+        fi
+
+        # For Flatpak Firefox, try the user override path
+        local flatpak_dist="$HOME/.var/app/org.mozilla.firefox/config/mozilla/firefox/distribution"
+        if [ -d "$HOME/.var/app/org.mozilla.firefox" ]; then
+            mkdir -p "$flatpak_dist" 2>/dev/null
+            cp -f "$src_policies" "$flatpak_dist/policies.json" 2>/dev/null && {
+                info "Installed policies.json → $flatpak_dist/"
+                found_any=true
+            }
+        fi
+
+        if [ "$found_any" = false ]; then
+            warning "Could not find Firefox installation directory to deploy policies.json."
+            warning "You may need to manually copy policies.json to your Firefox distribution/ folder."
+        else
+            info "Firefox policies deployed (search engine & toolbar changes take effect on next launch)."
+        fi
+    fi
 }
 
 

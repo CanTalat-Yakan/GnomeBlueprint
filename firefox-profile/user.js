@@ -70,6 +70,7 @@ user_pref("browser.tabs.groups.smart.userEnabled", false);
 
 // ─── Toolbar & Bookmarks ─────────────────────────────────────────────────────
 user_pref("browser.toolbars.bookmarks.visibility", "never");
+user_pref("browser.uiCustomization.state", '{"placements":{"widget-overflow-fixed-list":[],"unified-extensions-area":[],"nav-bar":["back-button","forward-button","urlbar-container","downloads-button","unified-extensions-button"],"toolbar-menubar":["menubar-items"],"TabsToolbar":["tabbrowser-tabs","new-tab-button","alltabs-button"],"PersonalToolbar":["personal-bookmarks"]},"seen":[],"dirtyAreaCache":[],"currentVersion":20,"newElementCount":0}');
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 user_pref("sidebar.revamp", false);

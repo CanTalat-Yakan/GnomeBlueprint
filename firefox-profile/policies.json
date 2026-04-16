@@ -1,0 +1,36 @@
+{
+    "policies": {
+        "SearchEngines": {
+            "Default": "Brave",
+            "Add": [
+                {
+                    "Name": "Brave",
+                    "URLTemplate": "https://search.brave.com/search?q={searchTerms}",
+                    "IconURL": "https://brave.com/static-assets/images/brave-favicon.png",
+                    "Alias": "@brave",
+                    "Description": "Brave Search",
+                    "Method": "GET",
+                    "SuggestURLTemplate": "https://search.brave.com/api/suggest?q={searchTerms}"
+                }
+            ],
+            "Remove": [
+                "Google",
+                "Bing",
+                "Amazon.com",
+                "eBay",
+                "Wikipedia (en)"
+            ]
+        },
+        "DisableFirefoxAccounts": true,
+        "DisplayBookmarksToolbar": "never",
+        "NoDefaultBookmarks": true,
+        "OfferToSaveLogins": false,
+        "PasswordManagerEnabled": false,
+        "FirefoxSuggest": {
+            "WebSuggestions": false,
+            "SponsoredSuggestions": false,
+            "ImproveSuggest": false
+        }
+    }
+}
+
