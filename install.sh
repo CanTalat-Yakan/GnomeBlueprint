@@ -188,6 +188,25 @@ install_docker() {
     info "Docker installed. Log out and back in for group membership to take effect."
 }
 
+# ─── Install fastfetch ─────────────────────────────────────────────────────────
+install_fastfetch() {
+    if command -v fastfetch &>/dev/null; then
+        info "fastfetch is already installed."
+        return
+    fi
+
+    info "Installing fastfetch..."
+    if command -v dnf &>/dev/null; then
+        sudo dnf install -y fastfetch || warning "Could not install fastfetch."
+    elif command -v apt-get &>/dev/null; then
+        sudo apt-get install -y fastfetch || warning "Could not install fastfetch."
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -Sy --noconfirm fastfetch || warning "Could not install fastfetch."
+    else
+        warning "Unsupported package manager - skipping fastfetch install."
+    fi
+}
+
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
 ESSENTIAL_FLATPAK_APPS=(
     "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
@@ -1358,6 +1377,7 @@ BANNER
     clone_repo
     install_flatpak
     install_docker
+    install_fastfetch
 
     # 5. Apply profile-specific dconf settings first (base layer)
     import_gnome_settings "$profile"
