@@ -168,6 +168,8 @@ menu-button-icon-image=14
 menu-button-icon-size=32
 symbolic-icon=false
 use-custom-icon=false
+menu-button-terminal-app='ptyxis --new-window'
+menu-button-system-monitor-app='flatpak run io.missioncenter.MissionCenter'
 
 [org/gnome/shell/extensions/panel-corners]
 panel-corners=true
