@@ -219,6 +219,7 @@ GNOME_EXTENSIONS=(
     "pip-on-top@rafostar.github.com|PiP on top"
     "quick-settings-audio-panel@rayzeq.github.io|Quick Settings Audio Panel"
     "restartto@tiagoporsch.github.io|Restart To"
+    "rounded-window-corners@fxgn|Rounded Window Corners Reborn"
     "user-theme@gnome-shell-extensions.gcampax.github.com|User Themes"
     "azwallpaper@azwallpaper.gitlab.com|Wallpaper Slideshow"
 )

@@ -83,6 +83,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | PiP on top | `pip-on-top@rafostar.github.com` |
 | Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` |
 | Restart To | `restartto@tiagoporsch.github.io` |
+| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` |
 | User Themes | `user-theme@gnome-shell-extensions.gcampax.github.com` |
 | Wallpaper Slideshow | `azwallpaper@azwallpaper.gitlab.com` |
 
