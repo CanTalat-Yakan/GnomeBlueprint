@@ -4,7 +4,7 @@ Self-hosted ZeroTier network node running in Docker.
 
 ## Address
 
-ZeroTier runs in **host network mode** — once joined to a network, this machine is accessible via its ZeroTier IP.
+ZeroTier runs in **host network mode** - once joined to a network, this machine is accessible via its ZeroTier IP.
 
 Manage your networks at: **https://my.zerotier.com**
 

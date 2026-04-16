@@ -33,10 +33,10 @@ docker compose logs -f
 
 Edit the `.env` file to configure:
 
-- `UPLOAD_LOCATION` — where uploaded photos/videos are stored (default: `./library`)
-- `DB_DATA_LOCATION` — where the PostgreSQL database is stored (default: `./postgres`)
-- `DB_PASSWORD` — **change this** before first launch
-- `IMMICH_VERSION` — pin to a specific version or use `release` for latest
+- `UPLOAD_LOCATION` - where uploaded photos/videos are stored (default: `./library`)
+- `DB_DATA_LOCATION` - where the PostgreSQL database is stored (default: `./postgres`)
+- `DB_PASSWORD` - **change this** before first launch
+- `IMMICH_VERSION` - pin to a specific version or use `release` for latest
 
 ## Data
 

@@ -85,7 +85,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | PiP on top | `pip-on-top@rafostar.github.com` |
 | Quick Settings Audio Panel | `quick-settings-audio-panel@rayzeq.github.io` |
 | Restart To | `restartto@tiagoporsch.github.io` |
-| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` | *Disabled — not yet compatible with GNOME 50* |
+| Rounded Window Corners Reborn | `rounded-window-corners@fxgn` | *Disabled - not yet compatible with GNOME 50* |
 | User Themes | `user-theme@gnome-shell-extensions.gcampax.github.com` |
 | Wallpaper Slideshow | `azwallpaper@azwallpaper.gitlab.com` |
 
@@ -108,7 +108,7 @@ Installed optional apps are automatically **pinned to the dock**.
 
 ## Docker Compose Services (interactive chooser)
 
-Pick any combination from the TUI menu — selected services are copied to your home directory and started automatically:
+Pick any combination from the TUI menu - selected services are copied to your home directory and started automatically:
 
 | Service | Directory | Address | Description |
 |---|---|---|---|
