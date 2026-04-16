@@ -11,6 +11,7 @@ REPO_URL="https://github.com/CanTalat-Yakan/GnomeBlueprint"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 USE_OLED=false
+INSTALLED_DOCKER_SERVICES=()
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
 YELLOW='\033[1;33m'
@@ -311,10 +312,74 @@ select_and_install_docker_services() {
                     || warning "${label} failed to start - you can start it manually later."
 
                 info "${label} deployed. See ${target_dir}/README.md for usage."
+                INSTALLED_DOCKER_SERVICES+=("$dir_name")
                 break
             fi
         done
     done
+}
+
+# ─── Add Firefox bookmarks for Docker services ──────────────────────────────────
+add_firefox_bookmarks() {
+    # Build list of bookmarks based on installed docker services
+    local entries=()
+    for svc in "${INSTALLED_DOCKER_SERVICES[@]+"${INSTALLED_DOCKER_SERVICES[@]}"}"; do
+        case "$svc" in
+            immich)   entries+=('{"url":"http://localhost:2283","name":"Immich"}') ;;
+            ollama)   entries+=('{"url":"http://localhost:3000","name":"Open WebUI"}') ;;
+            zerotierone) entries+=('{"url":"https://my.zerotier.com","name":"ZeroTier"}') ;;
+        esac
+    done
+
+    if [ ${#entries[@]} -eq 0 ]; then
+        return
+    fi
+
+    info "Adding Firefox bookmarks for installed services..."
+
+    # Build the JSON array
+    local json_arr
+    json_arr=$(printf '%s,' "${entries[@]}")
+    json_arr="[${json_arr%,}]"
+
+    # Inject ManagedBookmarks into all deployed policies.json files
+    local firefox_dirs=(
+        "/usr/lib/firefox"
+        "/usr/lib64/firefox"
+        "/usr/share/firefox"
+        "/usr/lib/firefox-esr"
+        "/opt/firefox"
+        "/snap/firefox/current/usr/lib/firefox"
+        "/var/lib/flatpak/app/org.mozilla.firefox/current/active/files/lib/firefox"
+    )
+    local snap_dist="$HOME/snap/firefox/common/.mozilla/firefox/distribution"
+
+    for fdir in "${firefox_dirs[@]}"; do
+        local pol="$fdir/distribution/policies.json"
+        [ -f "$pol" ] || continue
+        if command -v python3 &>/dev/null; then
+            sudo python3 -c "
+import json, sys
+p = json.load(open('$pol'))
+p['policies']['ManagedBookmarks'] = json.loads('$json_arr')
+p['policies']['DisplayBookmarksToolbar'] = 'always'
+json.dump(p, open('$pol','w'), indent=4)
+" 2>/dev/null && info "Added bookmarks to $pol" || true
+        fi
+    done
+
+    # Snap writable path
+    if [ -f "$snap_dist/policies.json" ] && command -v python3 &>/dev/null; then
+        python3 -c "
+import json
+p = json.load(open('$snap_dist/policies.json'))
+p['policies']['ManagedBookmarks'] = json.loads('$json_arr')
+p['policies']['DisplayBookmarksToolbar'] = 'always'
+json.dump(p, open('$snap_dist/policies.json','w'), indent=4)
+" 2>/dev/null && info "Added bookmarks to $snap_dist/policies.json" || true
+    fi
+
+    info "Firefox bookmarks configured (visible on next launch)."
 }
 
 # ─── Install fastfetch ─────────────────────────────────────────────────────────
@@ -1853,6 +1918,9 @@ BANNER
 
     # 17. Docker Compose services (interactive chooser)
     select_and_install_docker_services
+
+    # 17b. Add Firefox bookmarks for installed Docker services
+    add_firefox_bookmarks
 
     # 18. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
