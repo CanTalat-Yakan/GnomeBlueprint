@@ -1058,6 +1058,37 @@ configure_firefox() {
         "$HOME/snap/firefox/common/.mozilla/firefox"
     )
 
+    # Ensure Firefox has created its profile directories
+    # If no profiles exist yet, launch Firefox briefly to generate them
+    local needs_init=true
+    for root in "${search_roots[@]}"; do
+        if [ -f "$root/profiles.ini" ]; then
+            needs_init=false
+            break
+        fi
+    done
+
+    if [ "$needs_init" = true ]; then
+        info "Launching Firefox briefly to create profile directories..."
+        # Kill any running instance first
+        pkill -f firefox 2>/dev/null || true
+        sleep 1
+        firefox --headless &>/dev/null &
+        local ff_pid=$!
+        sleep 5
+        kill "$ff_pid" 2>/dev/null || true
+        wait "$ff_pid" 2>/dev/null || true
+        sleep 1
+        info "Firefox profile directories created."
+    else
+        # Make sure Firefox is closed so our files don't get overwritten
+        if pgrep -x firefox &>/dev/null; then
+            info "Closing Firefox to apply toolbar and preference changes..."
+            pkill -x firefox 2>/dev/null || true
+            sleep 3
+        fi
+    fi
+
     for root in "${search_roots[@]}"; do
         [ -d "$root" ] || continue
 
