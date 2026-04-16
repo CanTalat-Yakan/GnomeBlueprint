@@ -1,0 +1,21 @@
+services:
+  zerotier-one:
+    image: zerotier/zerotier:latest
+    container_name: zerotier-one
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/zerotier-one
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun
+    environment:
+      - ZT_OVERRIDE_LOCAL_CONF=1
+    healthcheck:
+      test: ["CMD-SHELL", "zerotier-cli info >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+

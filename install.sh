@@ -218,6 +218,99 @@ install_tailscale() {
     info "Tailscale installed and started."
 }
 
+# ─── Docker Compose services (interactive chooser) ─────────────────────────────
+
+DOCKER_SERVICES=(
+    "ZeroTier One|zerotierone"
+    "Ollama + Open WebUI|ollama"
+    "Immich|immich"
+)
+
+select_and_install_docker_services() {
+    echo ""
+    info "Choose Docker Compose services to deploy (optional)."
+    echo ""
+
+    local labels=()
+    for entry in "${DOCKER_SERVICES[@]}"; do
+        labels+=("${entry%%|*}")
+    done
+
+    local selected=()
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        local raw
+        raw=$(gum choose --no-limit --height=${#labels[@]} \
+            --header.foreground="12" --header.italic=false \
+            --header "  Select Docker services (↑/↓ move, Space select, Enter confirm):" \
+            "${labels[@]}") || true
+
+        if [ -n "$raw" ]; then
+            while IFS= read -r line; do
+                selected+=("$line")
+            done <<< "$raw"
+        fi
+    else
+        echo -e "${CYAN}${BOLD}Docker Compose services:${NC}"
+        for i in "${!labels[@]}"; do
+            printf "  %2d) %s\n" "$((i + 1))" "${labels[$i]}"
+        done
+        echo ""
+        echo "Enter the numbers you want (space-separated), or press Enter to skip:"
+        local choices
+        read -rp "> " choices
+        for num in $choices; do
+            if [[ "$num" =~ ^[0-9]+$ ]] && [ "$num" -ge 1 ] && [ "$num" -le "${#labels[@]}" ]; then
+                selected+=("${labels[$((num - 1))]}")
+            fi
+        done
+    fi
+
+    if [ ${#selected[@]} -eq 0 ]; then
+        info "No Docker services selected - moving on."
+        return
+    fi
+
+    info "Deploying ${#selected[@]} Docker service(s)..."
+
+    for sel in "${selected[@]}"; do
+        for entry in "${DOCKER_SERVICES[@]}"; do
+            local label="${entry%%|*}"
+            local dir_name="${entry##*|}"
+            if [ "$sel" = "$label" ]; then
+                local target_dir="$HOME/$dir_name"
+                info "Setting up ${label} in ${target_dir}..."
+
+                mkdir -p "$target_dir"
+                cp "$DOTFILES_DIR/docker/$dir_name/docker-compose.yml" "$target_dir/"
+                cp "$DOTFILES_DIR/docker/$dir_name/README.md" "$target_dir/" 2>/dev/null || true
+
+                # Copy .env if present (e.g. Immich)
+                if [ -f "$DOTFILES_DIR/docker/$dir_name/.env" ]; then
+                    # Only copy if user doesn't already have one (preserve existing config)
+                    if [ ! -f "$target_dir/.env" ]; then
+                        cp "$DOTFILES_DIR/docker/$dir_name/.env" "$target_dir/"
+                        # Generate a random DB password to replace the placeholder
+                        if grep -q 'please-change-me' "$target_dir/.env" 2>/dev/null; then
+                            local random_pw
+                            random_pw=$(openssl rand -base64 42 | tr -d '\n')
+                            sed -i "s|please-change-me|${random_pw}|g" "$target_dir/.env"
+                        fi
+                    fi
+                fi
+
+                # Start the service
+                info "Starting ${label}..."
+                (cd "$target_dir" && docker compose up -d) \
+                    || warning "${label} failed to start - you can start it manually later."
+
+                info "${label} deployed. See ${target_dir}/README.md for usage."
+                break
+            fi
+        done
+    done
+}
+
 # ─── Install fastfetch ─────────────────────────────────────────────────────────
 install_fastfetch() {
     if command -v fastfetch &>/dev/null; then
@@ -1695,22 +1788,25 @@ BANNER
     # 16. Optional applications (interactive chooser)
     select_and_install_optional_apps
 
-    # 17. Pin any installed optional apps to dock favorites
+    # 17. Docker Compose services (interactive chooser)
+    select_and_install_docker_services
+
+    # 18. Pin any installed optional apps to dock favorites
     pin_optional_apps_to_favorites
 
-    # 18. Register OpenCode shortcut (Super+C) if installed
+    # 19. Register OpenCode shortcut (Super+C) if installed
     register_opencode_shortcut
 
-    # 19. Reset app grid (remove folders, single alphabetical view)
+    # 20. Reset app grid (remove folders, single alphabetical view)
     reset_app_grid
 
-    # 20. Detect & install NVIDIA drivers
+    # 21. Detect & install NVIDIA drivers
     install_nvidia_drivers
 
-    # 21. Final system cleanup & update
+    # 22. Final system cleanup & update
     final_cleanup
 
-    # 22. Ask to reboot
+    # 23. Ask to reboot
     echo ""
     info "Installation complete!"
     ask_reboot

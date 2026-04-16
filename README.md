@@ -52,9 +52,10 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 11 | Optionally downloads a **wallpaper collection** |
 | 12 | Optionally **removes GNOME bloat** (Boxes, Characters, Weather, LibreOffice, etc.) |
 | 13 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
-| 14 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
-| 15 | **Resets the app grid** to a single flat alphabetical layout |
-| 16 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
+| 14 | Lets you pick **Docker Compose services** (ZeroTier, Ollama + Open WebUI, Immich) |
+| 15 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
+| 16 | **Resets the app grid** to a single flat alphabetical layout |
+| 17 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
 
 ## Essential Applications (always installed)
 
@@ -104,6 +105,27 @@ Pick any combination from the TUI menu:
 | Runtimes | .NET SDK & Runtimes (LTS + STS) | Script |
 
 Installed optional apps are automatically **pinned to the dock**.
+
+## Docker Compose Services (interactive chooser)
+
+Pick any combination from the TUI menu — selected services are copied to your home directory and started automatically:
+
+| Service | Directory | Address | Description |
+|---|---|---|---|
+| ZeroTier One | `~/zerotierone` | Host network (see [my.zerotier.com](https://my.zerotier.com)) | Peer-to-peer VPN mesh network |
+| Ollama + Open WebUI | `~/ollama` | http://localhost:3000 | Local LLM inference with web chat UI |
+| Immich | `~/immich` | http://localhost:2283 | Self-hosted photo & video management |
+
+Each directory contains a `docker-compose.yml` and a `README.md` with usage instructions.
+
+**Common commands** (run from the service directory):
+
+```bash
+docker compose up -d      # Start (detached)
+docker compose down        # Stop
+docker compose pull        # Update to latest version
+docker compose up -d      # Restart with new images
+```
 
 ## Desktop Profile
 
@@ -155,6 +177,17 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 ```
 GnomeBlueprint/
 ├── install.sh                  # Root installer (curl | bash)
+├── docker/
+│   ├── zerotierone/
+│   │   ├── docker-compose.yml  # ZeroTier One container
+│   │   └── README.md
+│   ├── ollama/
+│   │   ├── docker-compose.yml  # Ollama + Open WebUI containers
+│   │   └── README.md
+│   └── immich/
+│       ├── docker-compose.yml  # Immich photo management stack
+│       ├── .env                # Immich configuration
+│       └── README.md
 ├── firefox-profile/
 │   └── user.js                 # Privacy, theming, and UI settings for Firefox
 ├── gnome-settings/
