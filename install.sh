@@ -285,11 +285,11 @@ select_and_install_docker_services() {
                 cp "$DOTFILES_DIR/docker/$dir_name/docker-compose.yml" "$target_dir/"
                 cp "$DOTFILES_DIR/docker/$dir_name/README.md" "$target_dir/" 2>/dev/null || true
 
-                # Copy .env if present (e.g. Immich)
-                if [ -f "$DOTFILES_DIR/docker/$dir_name/.env" ]; then
+                # Copy env file if present (stored without dot prefix to avoid .gitignore)
+                if [ -f "$DOTFILES_DIR/docker/$dir_name/env" ]; then
                     # Only copy if user doesn't already have one (preserve existing config)
                     if [ ! -f "$target_dir/.env" ]; then
-                        cp "$DOTFILES_DIR/docker/$dir_name/.env" "$target_dir/"
+                        cp "$DOTFILES_DIR/docker/$dir_name/env" "$target_dir/.env"
                         # Generate a random DB password to replace the placeholder
                         if grep -q 'please-change-me' "$target_dir/.env" 2>/dev/null; then
                             local random_pw
