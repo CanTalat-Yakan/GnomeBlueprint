@@ -78,6 +78,12 @@ user_pref("browser.uiCustomization.state", '{"placements":{"widget-overflow-fixe
 user_pref("sidebar.revamp", false);
 user_pref("sidebar.verticalTabs", false);
 
+// ─── Address bar shortcuts ────────────────────────────────────────────────────
+user_pref("browser.urlbar.shortcuts.bookmarks", false);
+user_pref("browser.urlbar.shortcuts.history", false);
+user_pref("browser.urlbar.shortcuts.tabs", false);
+user_pref("browser.urlbar.suggest.engines", false);
+
 // ─── Privacy ──────────────────────────────────────────────────────────────────
 user_pref("signon.rememberSignons", false);
 user_pref("browser.vpn_promo.enabled", false);
