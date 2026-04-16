@@ -1033,13 +1033,13 @@ configure_firefox() {
 
     # Deduplicate
     if [ ${#profile_dirs[@]} -gt 0 ]; then
-        local -A seen=()
         local unique=()
         for d in "${profile_dirs[@]}"; do
-            if [ -z "${seen[$d]+x}" ]; then
-                seen[$d]=1
-                unique+=("$d")
-            fi
+            local dup=false
+            for u in "${unique[@]}"; do
+                [ "$d" = "$u" ] && { dup=true; break; }
+            done
+            $dup || unique+=("$d")
         done
         profile_dirs=("${unique[@]}")
     fi

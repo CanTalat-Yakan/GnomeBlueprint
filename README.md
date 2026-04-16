@@ -17,7 +17,7 @@
 ## Quick Installation
 
 ```bash
-curl -fsSL https://bit.ly/gnomeblueprint | sh
+curl -fsSL https://bit.ly/gnomeblueprint | bash
 ```
 
 ![gnomeblueprint.png](.github/assets/gnomeblueprint.png)
