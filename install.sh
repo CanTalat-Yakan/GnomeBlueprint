@@ -1682,7 +1682,7 @@ ask_uninstall_bloat() {
     info "Removing GNOME bloat..."
 
     for entry in "${GNOME_BLOAT_APPS[@]}"; do
-        local flatpak_id="${entry%%|}"
+        local flatpak_id="${entry%%|*}"
         local rest="${entry#*|}"
         local dnf_pkg="${rest%%|*}"
         rest="${rest#*|}"
