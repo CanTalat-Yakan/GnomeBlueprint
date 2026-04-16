@@ -1594,6 +1594,10 @@ BANNER
     install_gnome_extensions
     restart_gnome_shell
 
+    # Re-apply dconf settings after extensions are installed
+    # (freshly installed extensions may reset to defaults on first enable)
+    import_gnome_settings "$profile"
+
     # 7. Adwaita theme setup (adw-gtk3 + Flatpak overrides)
     setup_themes
 
