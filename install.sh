@@ -943,14 +943,30 @@ ask_oled_preference() {
         gsettings set org.gnome.TextEditor style-scheme 'Adwaita-dark' 2>/dev/null || true
 
         # Set Terminal (Ptyxis) palette to GNOME (default)
-        local profile_uuid
-        profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
-        if [ -z "$profile_uuid" ]; then
-            profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
-                | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
-        fi
-        if [ -n "$profile_uuid" ]; then
-            dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'gnome'" 2>/dev/null || true
+        if command -v ptyxis &>/dev/null; then
+            local profile_uuid
+            profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+            if [ -z "$profile_uuid" ]; then
+                profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
+                    | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+            fi
+            if [ -z "$profile_uuid" ]; then
+                info "Launching Ptyxis briefly to initialise profile..."
+                ptyxis &>/dev/null &
+                local ptyxis_pid=$!
+                sleep 3
+                kill "$ptyxis_pid" 2>/dev/null || true
+                wait "$ptyxis_pid" 2>/dev/null || true
+                sleep 1
+                profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+                if [ -z "$profile_uuid" ]; then
+                    profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
+                        | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+                fi
+            fi
+            if [ -n "$profile_uuid" ]; then
+                dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'gnome'" 2>/dev/null || true
+            fi
         fi
 
         return
@@ -990,28 +1006,48 @@ with open(path, 'w') as f:
 
     # 4. Terminal (Ptyxis) → XTerm palette
     #    Ptyxis stores palette per-profile with UUID-based dconf paths.
-    #    Find the existing default profile UUID, or create one if none exists.
-    local profile_uuid
-    profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
-
-    if [ -z "$profile_uuid" ]; then
-        # Try to get the first profile from profile-uuids
-        profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
-            | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
-    fi
-
-    if [ -z "$profile_uuid" ]; then
-        # No profile exists yet - create one with a deterministic UUID
-        profile_uuid="d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f90"
-        dconf write /org/gnome/Ptyxis/default-profile-uuid "'$profile_uuid'" 2>/dev/null || true
-        dconf write /org/gnome/Ptyxis/profile-uuids "['$profile_uuid']" 2>/dev/null || true
-    fi
-
-    if [ -n "$profile_uuid" ]; then
-        dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'XTerm'" 2>/dev/null || true
-        info "Terminal palette set to XTerm."
+    #    Find the existing default profile UUID, or launch Ptyxis briefly to create one.
+    if ! command -v ptyxis &>/dev/null; then
+        warning "Ptyxis (Terminal) not found - skipping terminal palette."
     else
-        warning "Could not determine Ptyxis profile UUID - set terminal palette manually."
+        local profile_uuid
+        profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+
+        if [ -z "$profile_uuid" ]; then
+            profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
+                | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+        fi
+
+        # If no profile exists, launch Ptyxis briefly to initialise dconf
+        if [ -z "$profile_uuid" ]; then
+            info "Launching Ptyxis briefly to initialise profile..."
+            ptyxis &>/dev/null &
+            local ptyxis_pid=$!
+            sleep 3
+            kill "$ptyxis_pid" 2>/dev/null || true
+            wait "$ptyxis_pid" 2>/dev/null || true
+            sleep 1
+
+            profile_uuid=$(dconf read /org/gnome/Ptyxis/default-profile-uuid 2>/dev/null | tr -d "'") || true
+            if [ -z "$profile_uuid" ]; then
+                profile_uuid=$(dconf read /org/gnome/Ptyxis/profile-uuids 2>/dev/null \
+                    | python3 -c "import sys,ast; l=ast.literal_eval(sys.stdin.read()); print(l[0] if l else '')" 2>/dev/null) || true
+            fi
+        fi
+
+        if [ -z "$profile_uuid" ]; then
+            # Last resort - create a deterministic UUID
+            profile_uuid="d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f90"
+            dconf write /org/gnome/Ptyxis/default-profile-uuid "'$profile_uuid'" 2>/dev/null || true
+            dconf write /org/gnome/Ptyxis/profile-uuids "['$profile_uuid']" 2>/dev/null || true
+        fi
+
+        if [ -n "$profile_uuid" ]; then
+            dconf write "/org/gnome/Ptyxis/Profiles/$profile_uuid/palette" "'XTerm'" 2>/dev/null || true
+            info "Terminal palette set to XTerm."
+        else
+            warning "Could not determine Ptyxis profile UUID - set terminal palette manually."
+        fi
     fi
 
     # Also set Ptyxis interface style to dark
