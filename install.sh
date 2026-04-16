@@ -994,7 +994,7 @@ configure_addwater() {
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox theme-enabled true 2>/dev/null || true
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox hide-single-tab true 2>/dev/null || true
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox normal-width-tabs true 2>/dev/null || true
-        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater background-update true 2>/dev/null || true
+        flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.background-update true 2>/dev/null || true
         info "Add Water preferences set. Open Add Water once to apply the theme to Firefox."
     else
         warning "flatpak not available - skipping Add Water configuration."
@@ -1514,6 +1514,9 @@ final_cleanup() {
 
     info "Clearing thumbnail cache..."
     rm -rf ~/.cache/thumbnails/* 2>/dev/null || true
+
+    info "Reloading systemd daemon..."
+    sudo systemctl daemon-reload 2>/dev/null || true
 
     info "System cleanup complete."
 }
