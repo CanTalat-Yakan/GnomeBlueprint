@@ -340,7 +340,7 @@ create_docker_web_apps() {
                 created=true
                 ;;
             zerotierone)
-                _create_web_app_desktop "ZeroTier" "https://my.zerotier.com" "zerotier"
+                _create_web_app_desktop "ZeroTier" "https://central.zerotier.com" "zerotier"
                 created=true
                 ;;
         esac

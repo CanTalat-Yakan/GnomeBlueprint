@@ -120,7 +120,7 @@ Pick any combination from the TUI menu - selected services are copied to your ho
 
 | Service | Directory | Address | Description |
 |---|---|---|---|
-| ZeroTier One | `~/zerotierone` | Host network (see [my.zerotier.com](https://my.zerotier.com)) | Peer-to-peer VPN mesh network |
+| ZeroTier One | `~/zerotierone` | Host network (see [central.zerotier.com](https://central.zerotier.com)) | Peer-to-peer VPN mesh network |
 | Ollama + Open WebUI | `~/ollama` | http://localhost:3000 | Local LLM inference with web chat UI |
 | Immich | `~/immich` | http://localhost:2283 | Self-hosted photo & video management |
 

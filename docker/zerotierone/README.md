@@ -6,7 +6,7 @@ Self-hosted ZeroTier network node running in Docker.
 
 ZeroTier runs in **host network mode** - once joined to a network, this machine is accessible via its ZeroTier IP.
 
-Manage your networks at: **https://my.zerotier.com**
+Manage your networks at: **https://central.zerotier.com**
 
 ## Quick Commands
 
