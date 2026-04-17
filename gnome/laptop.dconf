@@ -167,7 +167,7 @@ show-show-apps-button=false
 show-trash=false
 
 [org/gnome/shell/extensions/Logo-menu]
-menu-button-icon-image=14
+menu-button-icon-image=19
 menu-button-icon-size=32
 symbolic-icon=false
 use-custom-icon=false
