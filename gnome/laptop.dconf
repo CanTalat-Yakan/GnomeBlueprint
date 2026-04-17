@@ -1,10 +1,10 @@
 # GnomeBlueprint - Laptop dconf settings
 #
 # This file is loaded by install.sh via:
-#   dconf load / < gnome-settings/laptop.dconf
+#   dconf load / < gnome/laptop.dconf
 #
 # To export your current settings and update this file, run:
-#   dconf dump / > gnome-settings/laptop.dconf
+#   dconf dump / > gnome/laptop.dconf
 #
 # ─── Customise the sections below to match your preferred laptop setup ─────────
 

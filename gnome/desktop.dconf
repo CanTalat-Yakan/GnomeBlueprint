@@ -1,10 +1,10 @@
 # GnomeBlueprint - Desktop dconf settings
 #
 # This file is loaded by install.sh via:
-#   dconf load / < gnome-settings/desktop.dconf
+#   dconf load / < gnome/desktop.dconf
 #
 # To export your current settings and update this file, run:
-#   dconf dump / > gnome-settings/desktop.dconf
+#   dconf dump / > gnome/desktop.dconf
 #
 # ─── Customise the sections below to match your preferred desktop setup ────────
 

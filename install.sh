@@ -794,7 +794,7 @@ select_and_install_optional_apps() {
 # ─── Import GNOME settings via dconf ───────────────────────────────────────────
 import_gnome_settings() {
     local profile="$1"
-    local dconf_file="$DOTFILES_DIR/gnome-settings/${profile}.dconf"
+    local dconf_file="$DOTFILES_DIR/gnome/${profile}.dconf"
 
     if [ ! -f "$dconf_file" ]; then
         warning "No dconf file found at $dconf_file - skipping GNOME settings import."

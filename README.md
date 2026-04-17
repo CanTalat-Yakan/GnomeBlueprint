@@ -230,8 +230,8 @@ Edit the `GNOME_EXTENSIONS` array in `install.sh`. Format: `"uuid|Human-readable
 Export your current settings and overwrite the relevant file:
 
 ```bash
-dconf dump / > ~/.dotfiles/gnome-settings/desktop.dconf
-dconf dump / > ~/.dotfiles/gnome-settings/laptop.dconf
+dconf dump / > ~/.dotfiles/gnome/desktop.dconf
+dconf dump / > ~/.dotfiles/gnome/laptop.dconf
 ```
 
 Then commit and push so future installs pick them up.
