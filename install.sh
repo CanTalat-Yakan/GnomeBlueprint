@@ -1472,9 +1472,11 @@ configure_firefox() {
 
         info "Configured Firefox profile: $(basename "$profile")"
 
-        # Remove all bookmarks by deleting places.sqlite (recreated on next launch)
-        rm -f "$profile/places.sqlite" "$profile/places.sqlite-wal" "$profile/places.sqlite-shm" 2>/dev/null || true
-        info "Cleared bookmarks for profile: $(basename "$profile")"
+        # Clear all bookmarks via sqlite3
+        if [ -f "$profile/places.sqlite" ] && command -v sqlite3 &>/dev/null; then
+            sqlite3 "$profile/places.sqlite" "DELETE FROM moz_bookmarks;" 2>/dev/null || true
+            info "Cleared bookmarks for profile: $(basename "$profile")"
+        fi
     done
 
     info "Firefox preferences applied (takes effect on next Firefox launch)."
