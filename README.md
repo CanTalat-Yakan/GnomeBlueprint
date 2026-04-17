@@ -27,6 +27,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 - [Essential Applications](#essential-applications-always-installed)
 - [GNOME Shell Extensions](#gnome-shell-extensions-always-installed)
 - [Optional Applications](#optional-applications-interactive-chooser)
+- [Docker Compose Services](#docker-compose-services-interactive-chooser)
 - [Desktop Profile](#desktop-profile)
 - [Laptop Profile](#laptop-profile)
 - [Theming](#theming)
@@ -42,20 +43,25 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | 1 | Installs **gum** for a nice TUI experience |
 | 2 | Runs **system update** (`dnf update` + `flatpak update`) |
 | 3 | Asks you to pick a profile: **Desktop** or **Laptop** |
-| 4 | Installs **git**, **Docker**, **Tailscale**, and sets up **Flatpak + Flathub** |
+| 4 | Installs **git**, **Docker**, **Tailscale**, and **fastfetch**, and sets up **Flatpak + Flathub** |
 | 5 | Imports **profile-specific dconf settings** and runs the profile setup script |
 | 6 | Installs **essential Flatpak apps** and **GNOME Shell extensions** |
-| 7 | Sets up **Adwaita themes** and asks for **Oled (pure-black) preference** |
-| 8 | Configures **Firefox** (injects `user.js` for privacy, disables AI, sets up GNOME theme) |
-| 9 | Lets you toggle **user preferences** (24h clock, auto-login, regional formats, etc.) |
-| 10 | Configures **Nautilus, Terminal, and Text Editor** defaults |
-| 11 | Optionally downloads a **wallpaper collection** |
-| 12 | Optionally **removes GNOME bloat** (Boxes, Characters, Weather, LibreOffice, etc.) |
-| 13 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
-| 14 | Lets you pick **Docker Compose services** (ZeroTier, Ollama + Open WebUI, Immich) |
-| 15 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
-| 16 | **Resets the app grid** to a single flat alphabetical layout |
-| 17 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
+| 7 | Re-applies **dconf settings** after extensions are installed (extensions may reset defaults on first enable) |
+| 8 | Sets up **Adwaita themes** and installs **Rewaita** custom themes |
+| 9 | Asks for **Oled (pure-black) preference** and applies it to Rewaita, Firefox, Terminal, and Text Editor |
+| 10 | Configures **Add Water** and **Firefox** (injects `user.js` for privacy, deploys `policies.json` for search engine & toolbar) |
+| 11 | Lets you toggle **user preferences** (24h clock, auto-login, regional formats, etc.) |
+| 12 | Configures **Nautilus, Templates, Terminal, and Text Editor** defaults |
+| 13 | Optionally downloads a **wallpaper collection** |
+| 14 | Optionally **removes GNOME bloat** (Boxes, Calendar, Camera, Clocks, Characters, Weather, LibreOffice, etc.) |
+| 15 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
+| 16 | Lets you pick **Docker Compose services** (ZeroTier, Ollama + Open WebUI, Immich) |
+| 17 | Creates **web app shortcuts** for installed Docker services and Tailscale |
+| 18 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
+| 19 | Registers **OpenCode shortcut** (`Super+C`) if installed |
+| 20 | **Resets the app grid** to a single flat alphabetical layout |
+| 21 | Detects **NVIDIA GPU** and installs proprietary drivers (`akmod-nvidia`, CUDA, VA-API) |
+| 22 | Runs **final system cleanup** (autoremove, old kernels, journal trim, Flatpak repair) |
 
 ## Essential Applications (always installed)
 
@@ -68,7 +74,9 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 | Add Water | `dev.qwery.AddWater` | Apply Adwaita theme to Firefox |
 | Rewaita | `io.github.swordpuffin.rewaita` | Bring color to Adwaita |
 | Mission Center | `io.missioncenter.MissionCenter` | System resource monitor |
+| Web App Hub | `org.pvermeer.WebAppHub` | Manage web applications |
 | GNOME Tweaks | `gnome-tweaks` (system package) | Advanced GNOME settings |
+| fastfetch | `fastfetch` (system package) | System information tool |
 
 ## GNOME Shell Extensions (always installed)
 
@@ -137,7 +145,7 @@ docker compose up -d      # Restart with new images
 
 ## Laptop Profile
 
-- Panel at **top** (default), clock in the **center**
+- Panel at the **top** (default), clock in the **center**
 - Dynamic workspaces
 - Battery percentage shown, ambient brightness enabled
 - Lid close → suspend (resumes instantly on open)
@@ -168,7 +176,7 @@ docker compose up -d      # Restart with new images
 
 When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
 
-> Boxes · Characters · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · Parental Controls · System Monitor · Tour · Weather
+> Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · System Monitor · Tour · Weather
 
 RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
 
@@ -186,13 +194,19 @@ GnomeBlueprint/
 │   │   └── README.md
 │   └── immich/
 │       ├── docker-compose.yml  # Immich photo management stack
-│       ├── .env                # Immich configuration
+│       ├── env                 # Immich configuration (copied as .env)
 │       └── README.md
 ├── firefox-profile/
+│   ├── policies.json           # Enterprise policies (search engine, toolbar)
 │   └── user.js                 # Privacy, theming, and UI settings for Firefox
 ├── gnome-settings/
 │   ├── desktop.dconf           # dconf settings for desktop profile
 │   └── laptop.dconf            # dconf settings for laptop profile
+├── icons/
+│   ├── immich.png              # Immich web app icon
+│   ├── open-webui-light.png    # Open WebUI web app icon
+│   ├── tailscale-light.png     # Tailscale web app icon
+│   └── zerotier.png            # ZeroTier web app icon
 ├── profiles/
 │   ├── desktop/
 │   │   └── setup.sh            # Desktop-specific setup script
