@@ -1,6 +1,6 @@
 <h1 align="center" style="text-align:center">GnomeBlueprint</h1>
 <h4 align="center" style="text-align:center">
-Automate your perfect GNOME desktop in one command.<br>Extensions, themes, apps, and settings - all configured interactively.
+Automate your perfect GNOME desktop in one command.<br>Extensions, themes, apps, and settings. All configured interactively.
 </h4>
 <p align="center" style="text-align:center">
 20 minutes is all it takes to go from zero to a custom Fedora environment using GnomeBlueprint.
@@ -19,8 +19,8 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well a
 
 ## Recommended Base Install
 
-Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter) -
-a single tool that downloads the ISO and creates a bootable USB in a few clicks.
+Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter).
+A single tool that downloads the ISO and creates a bootable USB in a few clicks.
 
 > For atomic/immutable variants, grab [Silverblue](https://fedoraproject.org/silverblue/download/) or [Bazzite](https://bazzite.gg/) instead.
 
