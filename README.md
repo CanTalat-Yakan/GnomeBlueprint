@@ -1,7 +1,12 @@
 <h1 align="center" style="text-align:center">GnomeBlueprint</h1>
-<h4 align="center" style="text-align:center">Automate your perfect GNOME desktop in one command.</h4>
-<p align="center" style="text-align:center">Extensions, themes, apps, and settings - all configured interactively.</p>
-<p align="center" style="text-align:center"><strong>10 min Fedora install + 10 min GnomeBlueprint = fully configured desktop in 20 minutes.</strong></p>
+<h4 align="center" style="text-align:center">
+Automate your perfect GNOME desktop in one command.<br>Extensions, themes, apps, and settings - all configured interactively.
+</h4>
+<p align="center" style="text-align:center">
+20 minutes is all it takes to go from zero to a custom Fedora environment using GnomeBlueprint.
+<br><em>
+Works on traditional Fedora Workstation and atomic/immutable variants (Silverblue, Bazzite, Kinoite).
+</em></p>
 
 <p align="center" style="text-align:center">
   <img alt="Platform" src="https://img.shields.io/badge/Platform-Linux-FCC624">
@@ -172,6 +177,27 @@ When confirmed, the installer removes these pre-installed apps (Flatpak + RPM wi
 > Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · System Monitor · Tour · Weather
 
 RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
+
+## Atomic / Immutable Fedora Support
+
+GnomeBlueprint automatically detects atomic Fedora variants (Silverblue, Bazzite, Kinoite, etc.) via `/run/ostree-booted` and adapts accordingly:
+
+| Area | Traditional Fedora | Atomic Fedora |
+|------|-------------------|---------------|
+| System packages | `dnf install` | `rpm-ostree install --idempotent` |
+| System updates | `dnf update` | `rpm-ostree upgrade` |
+| Package removal | `dnf remove` (with dry-run safety) | `rpm-ostree uninstall` / `override remove` |
+| Firefox | RPM package | Flatpak (`org.mozilla.firefox`) |
+| Docker | DNF + Docker CE repo | rpm-ostree layering + Docker CE repo |
+| NVIDIA drivers | `akmod-nvidia` via DNF | `akmod-nvidia` via rpm-ostree |
+| RPM Fusion | `dnf install` RPM | `rpm-ostree install` RPM |
+| Bloat removal | `dnf remove` | `rpm-ostree override remove` |
+| gum (TUI) | DNF + Charm repo | Pre-built binary to `~/.local/bin` |
+| Flatpak apps | Same | Same |
+| GNOME extensions | Same | Same |
+| dconf / gsettings | Same | Same |
+
+> **Note:** On atomic systems, `rpm-ostree` changes require a **reboot** to take effect. The installer will prompt you to reboot at the end.
 
 ## Project Structure
 

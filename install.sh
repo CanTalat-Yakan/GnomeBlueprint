@@ -12,6 +12,59 @@ DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 USE_OLED=false
 INSTALLED_DOCKER_SERVICES=()
+IS_ATOMIC=false
+
+# ─── Detect immutable / atomic Fedora (Silverblue, Bazzite, Kinoite, etc.) ────
+detect_atomic() {
+    if [ -f /run/ostree-booted ] || command -v rpm-ostree &>/dev/null; then
+        IS_ATOMIC=true
+        info "Detected atomic/immutable Fedora (rpm-ostree). Adapting installation accordingly."
+    fi
+}
+
+# ─── Helpers: install / remove system packages (atomic-aware) ─────────────────
+# On atomic systems, rpm-ostree layering is used instead of dnf.
+# rpm-ostree install is idempotent (already-layered packages are skipped).
+pkg_install() {
+    local pkg="$1"
+    if [ "$IS_ATOMIC" = true ]; then
+        info "Layering $pkg via rpm-ostree..."
+        rpm-ostree install --idempotent --allow-inactive -y "$pkg" 2>/dev/null \
+            || warning "Could not layer $pkg via rpm-ostree."
+    elif command -v dnf &>/dev/null; then
+        sudo dnf install -y "$pkg" 2>/dev/null \
+            || warning "Could not install $pkg via dnf."
+    elif command -v apt-get &>/dev/null; then
+        sudo apt-get install -y "$pkg" 2>/dev/null \
+            || warning "Could not install $pkg via apt."
+    elif command -v pacman &>/dev/null; then
+        sudo pacman -Sy --noconfirm "$pkg" 2>/dev/null \
+            || warning "Could not install $pkg via pacman."
+    else
+        warning "No supported package manager found to install $pkg."
+    fi
+}
+
+pkg_remove() {
+    local pkg="$1" label="${2:-$1}"
+    if [ "$IS_ATOMIC" = true ]; then
+        # Check if the package is layered (user-installed)
+        if rpm-ostree status 2>/dev/null | grep -q "LayeredPackages:.*$pkg"; then
+            info "Removing layered package: $pkg ($label)..."
+            rpm-ostree uninstall -y "$pkg" 2>/dev/null \
+                || warning "Could not remove $pkg via rpm-ostree."
+        elif rpm -q "$pkg" &>/dev/null 2>&1; then
+            # Package is in the base image — use override remove
+            info "Overriding base package: $pkg ($label)..."
+            rpm-ostree override remove "$pkg" 2>/dev/null \
+                || warning "Could not override-remove $pkg (may be required by base image)."
+        fi
+    elif command -v dnf &>/dev/null; then
+        safe_dnf_remove "$pkg" "$label"
+    elif command -v pacman &>/dev/null; then
+        safe_pacman_remove "$pkg" "$label"
+    fi
+}
 
 # ─── Colors ───────────────────────────────────────────────────────────────────
 YELLOW='\033[1;33m'
@@ -44,7 +97,9 @@ install_git() {
     fi
 
     info "Installing git..."
-    if command -v apt-get &>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        pkg_install git
+    elif command -v apt-get &>/dev/null; then
         sudo apt-get update -y && sudo apt-get install -y git
     elif command -v dnf &>/dev/null; then
         sudo dnf install -y git
@@ -93,6 +148,28 @@ install_gum() {
         echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" \
             | sudo tee /etc/apt/sources.list.d/charm.list > /dev/null
         sudo apt-get update -y && sudo apt-get install -y gum
+
+    elif [ "$IS_ATOMIC" = true ]; then
+        # On atomic Fedora, avoid layering packages when possible.
+        # Try to install gum via a pre-built binary instead.
+        local gum_ver="0.14.5"
+        local gum_url="https://github.com/charmbracelet/gum/releases/download/v${gum_ver}/gum_${gum_ver}_Linux_x86_64.tar.gz"
+        local tmp_gum
+        tmp_gum=$(mktemp -d)
+        curl -fsSL "$gum_url" -o "$tmp_gum/gum.tar.gz" && {
+            tar -xzf "$tmp_gum/gum.tar.gz" -C "$tmp_gum"
+            mkdir -p "$HOME/.local/bin"
+            cp -f "$tmp_gum/gum" "$HOME/.local/bin/gum" 2>/dev/null \
+                || cp -f "$tmp_gum/gum_${gum_ver}_Linux_x86_64/gum" "$HOME/.local/bin/gum" 2>/dev/null
+            chmod +x "$HOME/.local/bin/gum"
+            export PATH="$HOME/.local/bin:$PATH"
+            info "gum installed to ~/.local/bin"
+        } || {
+            warning "Could not download gum binary. Falling back to plain-text selection."
+            GUM_AVAILABLE=false
+        }
+        rm -rf "$tmp_gum"
+        return
 
     elif command -v dnf &>/dev/null; then
         echo '[charm]
@@ -154,7 +231,36 @@ install_docker() {
 
     info "Installing Docker..."
 
-    if command -v dnf &>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        # On atomic Fedora, prefer installing Docker via rpm-ostree layering
+        # Remove conflicting packages first
+        rpm-ostree uninstall -y podman-docker 2>/dev/null || true
+
+        # Add Docker CE repo
+        local docker_repo="https://download.docker.com/linux/fedora/docker-ce.repo"
+        sudo curl -fsSL "$docker_repo" -o /etc/yum.repos.d/docker-ce.repo 2>/dev/null || {
+            warning "Could not add Docker repo - skipping."
+            return
+        }
+
+        # Fix $releasever for atomic variants
+        local fedora_ver
+        fedora_ver=$(rpm -E %fedora 2>/dev/null) || true
+        if [ -n "$fedora_ver" ] && [ -f /etc/yum.repos.d/docker-ce.repo ]; then
+            sudo sed -i "s|\$releasever|${fedora_ver}|g" /etc/yum.repos.d/docker-ce.repo 2>/dev/null || true
+        fi
+
+        rpm-ostree install --idempotent --allow-inactive -y \
+            docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+            || { warning "Docker layering failed - skipping."; return; }
+
+        # Enable Docker service (will start after reboot when layers are applied)
+        sudo systemctl enable docker 2>/dev/null || true
+        sudo usermod -aG docker "$(whoami)" 2>/dev/null || true
+        info "Docker layered via rpm-ostree. A reboot is required to activate."
+        return
+
+    elif command -v dnf &>/dev/null; then
         # Remove old/conflicting packages
         sudo dnf remove -y docker docker-client docker-client-latest \
             docker-common docker-latest docker-latest-logrotate \
@@ -354,7 +460,7 @@ create_docker_web_apps() {
 _create_web_app_desktop() {
     local name="$1" url="$2" icon_name="$3"
     local app_id
-    app_id=$(echo "$name" | tr '[:upper:] ' '[:lower:]-')
+    app_id=$(echo "$name" | tr '[:upper:]' '[:lower:]-')
 
     # Install icon to local icon directory
     local icon_dir="$HOME/.local/share/icons/hicolor/256x256/apps"
@@ -399,7 +505,9 @@ install_fastfetch() {
     fi
 
     info "Installing fastfetch..."
-    if command -v dnf &>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        pkg_install fastfetch
+    elif command -v dnf &>/dev/null; then
         sudo dnf install -y fastfetch || warning "Could not install fastfetch."
     elif command -v apt-get &>/dev/null; then
         sudo apt-get install -y fastfetch || warning "Could not install fastfetch."
@@ -427,10 +535,13 @@ install_essential_flatpaks() {
         install_one_flatpak "$app"
     done
 
-    # Install Firefox if not already present (prefer RPM over Flatpak)
+    # Install Firefox if not already present (prefer RPM over Flatpak; on atomic use Flatpak)
     if ! command -v firefox &>/dev/null && ! flatpak list 2>/dev/null | grep -q org.mozilla.firefox; then
         info "Installing Firefox..."
-        if command -v dnf &>/dev/null; then
+        if [ "$IS_ATOMIC" = true ]; then
+            # On atomic systems, Firefox is best installed as a Flatpak
+            install_one_flatpak "org.mozilla.firefox"
+        elif command -v dnf &>/dev/null; then
             sudo dnf install -y firefox \
                 || warning "Could not install Firefox via dnf."
         elif command -v pacman &>/dev/null; then
@@ -446,7 +557,10 @@ install_essential_flatpaks() {
 
     # Install GNOME Tweaks (system package, not available as Flatpak)
     info "Installing GNOME Tweaks..."
-    if command -v dnf &>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        rpm -q gnome-tweaks &>/dev/null 2>&1 \
+            || pkg_install gnome-tweaks
+    elif command -v dnf &>/dev/null; then
         rpm -q gnome-tweaks &>/dev/null 2>&1 \
             || sudo dnf install -y gnome-tweaks \
             || warning "Could not install gnome-tweaks."
@@ -627,7 +741,7 @@ restart_gnome_shell() {
 
 # ─── RPM Fusion setup ────────────────────────────────────────────────────────────
 ensure_rpmfusion() {
-    if ! command -v dnf &>/dev/null; then
+    if ! command -v dnf &>/dev/null && [ "$IS_ATOMIC" != true ]; then
         return 1
     fi
     if dnf repolist 2>/dev/null | grep -q rpmfusion; then
@@ -636,10 +750,17 @@ ensure_rpmfusion() {
     info "Enabling RPM Fusion repositories..."
     local fedora_ver
     fedora_ver=$(rpm -E %fedora 2>/dev/null) || return 1
-    sudo dnf install -y \
-        "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
-        "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm" \
-        || { warning "Could not enable RPM Fusion."; return 1; }
+    if [ "$IS_ATOMIC" = true ]; then
+        rpm-ostree install --idempotent --allow-inactive -y \
+            "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
+            "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm" \
+            || { warning "Could not enable RPM Fusion via rpm-ostree."; return 1; }
+    else
+        sudo dnf install -y \
+            "https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-${fedora_ver}.noarch.rpm" \
+            "https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-${fedora_ver}.noarch.rpm" \
+            || { warning "Could not enable RPM Fusion."; return 1; }
+    fi
 }
 
 # ─── Install a single RPM package (enables RPM Fusion if needed) ────────────────
@@ -649,11 +770,17 @@ install_one_rpm() {
         info "$pkg is already installed."
         return
     fi
-    info "Installing $pkg via RPM..."
-    # Try direct install first; if it fails, enable RPM Fusion and retry
-    if ! sudo dnf install -y "$pkg" 2>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        info "Installing $pkg via rpm-ostree..."
         ensure_rpmfusion
-        sudo dnf install -y "$pkg" || warning "Could not install $pkg via dnf."
+        pkg_install "$pkg"
+    else
+        info "Installing $pkg via RPM..."
+        # Try direct install first; if it fails, enable RPM Fusion and retry
+        if ! sudo dnf install -y "$pkg" 2>/dev/null; then
+            ensure_rpmfusion
+            sudo dnf install -y "$pkg" || warning "Could not install $pkg via dnf."
+        fi
     fi
 }
 
@@ -882,7 +1009,10 @@ run_profile() {
 # ─── System update ──────────────────────────────────────────────────────────────
 system_update() {
     info "Updating system packages..."
-    if command -v dnf &>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        info "Upgrading base image via rpm-ostree..."
+        rpm-ostree upgrade || warning "rpm-ostree upgrade encountered an error."
+    elif command -v dnf &>/dev/null; then
         sudo dnf update -y || warning "dnf update encountered an error."
     elif command -v apt-get &>/dev/null; then
         sudo apt-get update -y && sudo apt-get upgrade -y || warning "apt upgrade encountered an error."
@@ -1161,7 +1291,14 @@ setup_themes() {
     info "Setting up Adwaita themes..."
 
     # Install adw-gtk3 theme (makes GTK3 apps match GTK4 Adwaita)
-    if command -v dnf &>/dev/null; then
+    if [ "$IS_ATOMIC" = true ]; then
+        if ! rpm -q adw-gtk3-theme &>/dev/null 2>&1; then
+            info "Installing adw-gtk3-theme..."
+            pkg_install adw-gtk3-theme
+        else
+            info "adw-gtk3-theme is already installed."
+        fi
+    elif command -v dnf &>/dev/null; then
         if ! rpm -q adw-gtk3-theme &>/dev/null 2>&1; then
             info "Installing adw-gtk3-theme..."
             sudo dnf install -y adw-gtk3-theme || warning "Could not install adw-gtk3-theme."
@@ -1521,6 +1658,10 @@ configure_firefox() {
         for fdir in "${firefox_dirs[@]}"; do
             if [ -d "$fdir" ]; then
                 local dist_dir="$fdir/distribution"
+                # On atomic systems /usr is read-only, skip system dirs
+                if [ "$IS_ATOMIC" = true ] && [[ "$fdir" == /usr/* ]]; then
+                    continue
+                fi
                 sudo mkdir -p "$dist_dir" 2>/dev/null || continue
                 if sudo cp -f "$src_policies" "$dist_dir/policies.json" 2>/dev/null; then
                     sudo chmod 644 "$dist_dir/policies.json" 2>/dev/null
@@ -1848,9 +1989,13 @@ ask_uninstall_bloat() {
             fi
         fi
 
-        # 2. Try RPM removal (with safety check)
-        if [ "$dnf_pkg" != "-" ] && command -v dnf &>/dev/null; then
-            safe_dnf_remove "$dnf_pkg" "$label"
+        # 2. Try RPM/system package removal
+        if [ "$dnf_pkg" != "-" ]; then
+            if [ "$IS_ATOMIC" = true ]; then
+                pkg_remove "$dnf_pkg" "$label"
+            elif command -v dnf &>/dev/null; then
+                safe_dnf_remove "$dnf_pkg" "$label"
+            fi
         # 3. Try pacman removal (Arch-based)
         elif [ "$pacman_pkg" != "-" ] && command -v pacman &>/dev/null; then
             safe_pacman_remove "$pacman_pkg" "$label"
@@ -1879,6 +2024,9 @@ main() {
 ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝   ╚═╝   
 BANNER
     echo -e "${NC}"
+
+    # 0. Detect atomic/immutable Fedora
+    detect_atomic
 
     # 1. Bootstrap tooling
     install_gum
@@ -2007,11 +2155,19 @@ install_nvidia_drivers() {
 
     if [ "$do_nvidia" = true ]; then
         ensure_rpmfusion
-        info "Installing NVIDIA drivers (akmod-nvidia + CUDA + VA-API)..."
-        sudo dnf install -y akmod-nvidia || warning "Failed to install akmod-nvidia."
-        sudo dnf install -y xorg-x11-drv-nvidia-cuda || warning "Failed to install nvidia-cuda."
-        sudo dnf install -y nvidia-vaapi-driver libva-utils || warning "Failed to install VA-API drivers."
-        info "NVIDIA drivers installed. A reboot is required to build the kernel module."
+        if [ "$IS_ATOMIC" = true ]; then
+            info "Installing NVIDIA drivers via rpm-ostree (akmod-nvidia + CUDA + VA-API)..."
+            rpm-ostree install --idempotent --allow-inactive -y \
+                akmod-nvidia xorg-x11-drv-nvidia-cuda nvidia-vaapi-driver libva-utils \
+                || warning "NVIDIA driver layering failed."
+            info "NVIDIA drivers layered. A reboot is required to build the kernel module."
+        else
+            info "Installing NVIDIA drivers (akmod-nvidia + CUDA + VA-API)..."
+            sudo dnf install -y akmod-nvidia || warning "Failed to install akmod-nvidia."
+            sudo dnf install -y xorg-x11-drv-nvidia-cuda || warning "Failed to install nvidia-cuda."
+            sudo dnf install -y nvidia-vaapi-driver libva-utils || warning "Failed to install VA-API drivers."
+            info "NVIDIA drivers installed. A reboot is required to build the kernel module."
+        fi
     fi
 }
 
@@ -2040,8 +2196,16 @@ reset_app_grid() {
 final_cleanup() {
     info "Running final system cleanup & update..."
 
+    # ── Atomic / immutable Fedora ──────────────────────────────────────────────
+    if [ "$IS_ATOMIC" = true ]; then
+        info "Upgrading base image (rpm-ostree)..."
+        rpm-ostree upgrade || warning "rpm-ostree upgrade encountered an error."
+
+        info "Cleaning up rpm-ostree..."
+        rpm-ostree cleanup -m 2>/dev/null || true
+
     # ── DNF-based systems ───────────────────────────────────────────────────────
-    if command -v dnf &>/dev/null; then
+    elif command -v dnf &>/dev/null; then
         # Refresh metadata and upgrade all packages
         info "Upgrading packages (with refreshed metadata)..."
         sudo dnf upgrade --refresh -y || warning "dnf upgrade encountered an error."
