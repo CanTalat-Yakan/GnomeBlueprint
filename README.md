@@ -19,7 +19,8 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well a
 
 ## Recommended Base Install
 
-Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter) - a single tool that downloads the ISO and creates a bootable USB in a few clicks. Available on Windows, macOS, and Linux.
+Download [**Fedora Workstation 44**](https://fedoraproject.org/workstation/download/) and flash it to a USB drive with [**Fedora Media Writer**](https://github.com/FedoraQt/MediaWriter) -
+a single tool that downloads the ISO and creates a bootable USB in a few clicks.
 
 > For atomic/immutable variants, grab [Silverblue](https://fedoraproject.org/silverblue/download/) or [Bazzite](https://bazzite.gg/) instead.
 
