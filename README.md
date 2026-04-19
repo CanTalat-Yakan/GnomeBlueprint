@@ -35,18 +35,56 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 <!-- TOC -->
 
 - [Quick Installation](#quick-installation)
+- [Desktop Profile](#desktop-profile)
+- [Laptop Profile](#laptop-profile)
+- [Theming](#theming)
 - [What the Installer Does](#what-the-installer-does)
 - [Essential Applications](#essential-applications-always-installed)
 - [GNOME Shell Extensions](#gnome-shell-extensions-always-installed)
 - [Optional Applications](#optional-applications-interactive-chooser)
 - [Docker Compose Services](#docker-compose-services-interactive-chooser)
-- [Desktop Profile](#desktop-profile)
-- [Laptop Profile](#laptop-profile)
-- [Theming](#theming)
 - [Bloat Removal](#bloat-removal)
 - [Project Structure](#project-structure)
 - [Customisation](#customisation)
 - [License](#license)
+
+## Desktop Profile
+
+- Panel at **bottom**, clock on the **right**
+- Notification banners in the **bottom-right** corner
+- Dynamic workspaces
+- Blank screen: never / no idle dim
+- No touchpad natural scroll / tap-to-click
+- `Super+D` show desktop, `Super+E` files, `Super+T` terminal, `Super+Space` ArcMenu runner
+
+![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
+
+## Laptop Profile
+
+- Panel at the **top**, clock in the **center**
+- Dynamic workspaces
+- Battery percentage shown, ambient brightness enabled
+- Lid close → suspend (resumes instantly on open)
+- Tap-to-click, natural scroll, two-finger scrolling
+- Same keyboard shortcuts as Desktop
+
+![screenshot-laptop.png](.github/assets/screenshot-laptop.png)
+
+## Theming
+
+- **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
+- Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
+- Custom **Rewaita** themes included (`themes/dark` and `themes/light`)
+- Prompts for an **Oled** preference to apply pure-black styling to Rewaita, Firefox, Terminal, and Text Editor
+- Automatically configures **Add Water** and injects `user.js` to theme and lock down Firefox (disabling AI/bloat)
+
+## Bloat Removal
+
+When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
+
+> Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · System Monitor · Tour · Weather
+
+RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
 
 ## What the installer does
 
@@ -147,44 +185,6 @@ docker compose down       # Stop
 docker compose pull       # Update to latest version
 docker compose up -d      # Restart with new images
 ```
-
-## Desktop Profile
-
-- Panel at **bottom**, clock on the **right**
-- Notification banners in the **bottom-right** corner
-- Dynamic workspaces
-- Blank screen: never / no idle dim
-- No touchpad natural scroll / tap-to-click
-- `Super+D` show desktop, `Super+E` files, `Super+T` terminal, `Super+Space` ArcMenu runner
-
-![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
-
-## Laptop Profile
-
-- Panel at the **top**, clock in the **center**
-- Dynamic workspaces
-- Battery percentage shown, ambient brightness enabled
-- Lid close → suspend (resumes instantly on open)
-- Tap-to-click, natural scroll, two-finger scrolling
-- Same keyboard shortcuts as Desktop
-
-![screenshot-laptop.png](.github/assets/screenshot-laptop.png)
-
-## Theming
-
-- **adw-gtk3-dark** installed via dnf - makes GTK3 apps match GTK4 Adwaita
-- Flatpak overrides applied for `gtk-4.0` and `gtk-3.0` theme access
-- Custom **Rewaita** themes included (`themes/dark` and `themes/light`)
-- Prompts for an **Oled** preference to apply pure-black styling to Rewaita, Firefox, Terminal, and Text Editor
-- Automatically configures **Add Water** and injects `user.js` to theme and lock down Firefox (disabling AI/bloat)
-
-## Bloat Removal
-
-When confirmed, the installer removes these pre-installed apps (Flatpak + RPM with safety check):
-
-> Boxes · Calendar · Camera · Characters · Clocks · Connections · Contacts · Extensions · Disk Usage Analyser · Document Scanner · Fedora Media Writer · Help · LibreOffice Calc/Impress/Writer · Maps · System Monitor · Tour · Weather
-
-RPM removal runs a **dry-run first** - if removing a package would cascade into `gnome-shell`, `gdm`, or `mutter`, it is safely skipped.
 
 ## Atomic / Immutable Fedora Support
 
