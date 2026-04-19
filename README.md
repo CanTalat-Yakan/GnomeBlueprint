@@ -44,6 +44,7 @@ curl -fsSL https://bit.ly/gnomeblueprint | bash
 - [GNOME Shell Extensions](#gnome-shell-extensions-always-installed)
 - [Optional Applications](#optional-applications-interactive-chooser)
 - [Docker Compose Services](#docker-compose-services-interactive-chooser)
+- [Atomic Fedora Support](#atomic--immutable-fedora-support)
 - [Project Structure](#project-structure)
 - [Customisation](#customisation)
 - [License](#license)
