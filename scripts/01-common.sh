@@ -23,6 +23,8 @@ GUM_CONFIRM_STYLE_FLAGS=(
 )
 
 GUM_CHOOSE_STYLE_FLAGS=(
+    "--header.foreground="
+    "--header.background="
     "--selected.foreground="
     "--selected.background="
     "--cursor.foreground="
