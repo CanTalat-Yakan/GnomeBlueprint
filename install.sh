@@ -140,15 +140,15 @@ BANNER
         exit 0
     fi
 
-    # 5. System update (dnf + flatpak)
-    system_update
-
-    # 6. Profile selection
+    # 5. Profile selection
     local profile
     profile=$(select_profile)
     info "Selected profile: ${BOLD}${profile}${NC}"
 
-    # 6. Core setup
+    # 6. System update (dnf + flatpak)
+    system_update
+
+    # 7. Core setup
     install_flatpak
     install_docker
     install_tailscale
