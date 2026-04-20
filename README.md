@@ -256,7 +256,7 @@ Edit the `OPTIONAL_APPS` array in `install.sh`. Format: `"Display Label|type:ide
 
 ### Adding essential Flatpaks
 
-Edit the `ESSENTIAL_FLATPAK_APPS` array in `install.sh`.
+Edit the `ESSENTIAL_APPS` array in `install.sh`.
 
 ### Adding GNOME extensions
 

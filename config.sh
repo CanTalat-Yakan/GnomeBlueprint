@@ -8,7 +8,7 @@
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 # ─── Essential Flatpak applications (always installed) ──────────────────────────
-ESSENTIAL_FLATPAK_APPS=(
+ESSENTIAL_APPS=(
     "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
     "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
     "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts

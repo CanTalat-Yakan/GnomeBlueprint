@@ -5,7 +5,7 @@
 
 install_essential_flatpaks() {
     info "Installing essential Flatpak applications..."
-    for app in "${ESSENTIAL_FLATPAK_APPS[@]}"; do
+    for app in "${ESSENTIAL_APPS[@]}"; do
         install_one_flatpak "$app"
     done
 

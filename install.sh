@@ -111,10 +111,8 @@ BANNER
     info "  ${BOLD}${DOTFILES_DIR}/config.sh${NC}"
     info "  ${BOLD}${DOTFILES_DIR}/gnome/<profile>/${NC}"
     echo ""
-    info "  config.sh arrays you can edit:"
-    info "    ESSENTIAL_FLATPAK_APPS, OPTIONAL_APPS,"
-    info "    GNOME_EXTENSIONS, GNOME_EXTENSIONS_DISABLED," 
-    info "    GNOME_BLOAT_APPS, OPTIONAL_PIN_ORDER, DOCKER_SERVICES"
+    info "ESSENTIAL_APPS, OPTIONAL_APPS, OPTIONAL_PIN_ORDER, DOCKER_SERVICES"
+    info "GNOME_EXTENSIONS, GNOME_EXTENSIONS_DISABLED, GNOME_BLOAT_APPS"
     echo ""
 
     local do_continue=true
