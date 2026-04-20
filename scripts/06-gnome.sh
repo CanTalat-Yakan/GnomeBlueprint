@@ -72,7 +72,7 @@ select_profile() {
 # ─── Run profile-specific setup script ─────────────────────────────────────────
 run_profile() {
     local profile="$1"
-    local script="$DOTFILES_DIR/profiles/${profile}/setup.sh"
+    local script="$DOTFILES_DIR/gnome/${profile}/setup.sh"
 
     if [ ! -f "$script" ]; then
         warning "No setup script found at $script - skipping profile setup."

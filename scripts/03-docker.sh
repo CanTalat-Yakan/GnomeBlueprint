@@ -223,10 +223,10 @@ _create_web_app_desktop() {
 
     local src_icon=""
     case "$icon_name" in
-        immich)    src_icon="$DOTFILES_DIR/icons/immich.png" ;;
-        open-webui) src_icon="$DOTFILES_DIR/icons/open-webui-light.png" ;;
-        zerotier)  src_icon="$DOTFILES_DIR/icons/zerotier.png" ;;
-        tailscale) src_icon="$DOTFILES_DIR/icons/tailscale-light.png" ;;
+        immich)    src_icon="$DOTFILES_DIR/assets/icons/immich.png" ;;
+        open-webui) src_icon="$DOTFILES_DIR/assets/icons/open-webui-light.png" ;;
+        zerotier)  src_icon="$DOTFILES_DIR/assets/icons/zerotier.png" ;;
+        tailscale) src_icon="$DOTFILES_DIR/assets/icons/tailscale-light.png" ;;
     esac
 
     if [ -n "$src_icon" ] && [ -f "$src_icon" ]; then

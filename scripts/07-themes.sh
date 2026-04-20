@@ -53,9 +53,9 @@ install_rewaita_themes() {
     mkdir -p "$dark_dir" "$light_dir"
 
     local src="$DOTFILES_DIR"
-    cp -f "$src/themes/dark/A Default Dark Theme.css"  "$dark_dir/"  2>/dev/null || warning "Could not copy default dark theme."
-    cp -f "$src/themes/dark/A Oled Dark Theme.css"     "$dark_dir/"  2>/dev/null || warning "Could not copy Oled dark theme."
-    cp -f "$src/themes/light/A Default Light Theme.css" "$light_dir/" 2>/dev/null || warning "Could not copy default light theme."
+    cp -f "$src/assets/themes/dark/A Default Dark Theme.css"  "$dark_dir/"  2>/dev/null || warning "Could not copy default dark theme."
+    cp -f "$src/assets/themes/dark/A Pure Dark Theme.css"     "$dark_dir/"  2>/dev/null || warning "Could not copy Oled dark theme."
+    cp -f "$src/assets/themes/light/A Default Light Theme.css" "$light_dir/" 2>/dev/null || warning "Could not copy default light theme."
 
     info "Theme files installed into Rewaita data directory."
 
@@ -139,7 +139,7 @@ try:
         prefs = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     prefs = {}
-prefs['dark-theme'] = 'A Oled Dark Theme.css'
+prefs['dark-theme'] = 'A Pure Dark Theme.css'
 with open(path, 'w') as f:
     json.dump(prefs, f, indent=4)
 " 2>/dev/null || warning "Could not update Rewaita prefs for Oled."
