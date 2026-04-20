@@ -24,7 +24,7 @@ GUM_CONFIRM_STYLE_FLAGS=(
 
 GUM_CHOOSE_STYLE_FLAGS=(
     "--selected.foreground="
-    "--selected.background=238"
+    "--selected.background="
     "--cursor.foreground="
     "--cursor.background="
     "--item.foreground="

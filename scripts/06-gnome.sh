@@ -43,7 +43,7 @@ select_profile() {
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         profile=$(gum_choose_styled \
             --header.foreground="12" --header.italic=false \
-            --header "  Select a 02Gnome profile:" \
+            --header "  Select a profile:" \
             "Desktop" \
             "Laptop" \
             | tr '[:upper:]' '[:lower:]')
