@@ -108,7 +108,6 @@ select_and_install_optional_apps() {
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         local raw
         raw=$(gum_choose_styled --no-limit --height=${#labels[@]} \
-            --header.italic=false \
             --header "  Select optional apps (↑/↓ move, Space select, Enter confirm):" \
             "${labels[@]}") || true
 

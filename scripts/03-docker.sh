@@ -105,7 +105,6 @@ select_and_install_docker_services() {
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         local raw
         raw=$(gum_choose_styled --no-limit --height=${#labels[@]} \
-            --header.italic=false \
             --header "  Select Docker services (↑/↓ move, Space select, Enter confirm):" \
             "${labels[@]}") || true
 

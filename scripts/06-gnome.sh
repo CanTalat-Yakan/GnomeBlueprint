@@ -42,7 +42,6 @@ select_profile() {
 
     if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
         profile=$(gum_choose_styled \
-            --header.italic=false \
             --header "  Select a profile:" \
             "Desktop" \
             "Laptop" \
@@ -108,7 +107,6 @@ ask_user_preferences() {
         local raw
         raw=$(gum_choose_styled --no-limit \
             --selected="$selected_default" \
-            --header.italic=false \
             --header "  Select preferences (↑/↓ move, Space toggle, Enter confirm):" \
             "${pref_labels[@]}") || true
         if [ -n "$raw" ]; then
