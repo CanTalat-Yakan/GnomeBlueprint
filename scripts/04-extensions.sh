@@ -118,18 +118,4 @@ install_gnome_extensions() {
     info "GNOME Shell extensions installed."
 }
 
-# ─── Restart GNOME Shell to activate extensions ────────────────────────────────
-restart_gnome_shell() {
-    info "Restarting GNOME Shell to activate extensions..."
-
-    if [ "${XDG_SESSION_TYPE:-}" = "x11" ]; then
-        busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s \
-            'Meta.restart("Restarting GNOME Shell...")' 2>/dev/null \
-            && { sleep 2; info "GNOME Shell restarted."; } \
-            || warning "Could not restart GNOME Shell - please log out and back in."
-    else
-        warning "Running on Wayland - GNOME Shell cannot be restarted in-place."
-        warning "Please log out and back in for all extensions to take full effect."
-    fi
-}
 

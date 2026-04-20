@@ -156,7 +156,6 @@ BANNER
     # 8. Essential Flatpaks & GNOME extensions
     install_essential_flatpaks
     install_gnome_extensions
-    restart_gnome_shell
 
     # Re-apply dconf settings after extensions are installed
     sleep 3
