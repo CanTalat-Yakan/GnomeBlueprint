@@ -17,7 +17,8 @@ error()   { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 detect_atomic() {
     if [ -f /run/ostree-booted ] || command -v rpm-ostree &>/dev/null; then
         IS_ATOMIC=true
-        info "Detected atomic/immutable Fedora (rpm-ostree). Adapting installation accordingly."
+        info "Detected atomic/immutable Fedora (rpm-ostree)."
+        info "Adapting installation accordingly."
     fi
 }
 

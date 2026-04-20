@@ -46,7 +46,8 @@ error()   { echo -e "${_RED}[ERROR]${_NC} $*" >&2; }
 _early_detect_atomic() {
     if [ -f /run/ostree-booted ] || command -v rpm-ostree &>/dev/null; then
         IS_ATOMIC=true
-        info "Detected atomic/immutable Fedora (rpm-ostree). Adapting installation accordingly."
+        info "Detected atomic/immutable Fedora (rpm-ostree)."
+        info "Adapting installation accordingly."
     fi
 }
 
@@ -121,7 +122,7 @@ BANNER
             do_continue=false
         fi
     else
-        echo -e "${_CYAN}${_BOLD}Start installation?${_NC} [Y/n]"
+        echo -e "${CYAN}${BOLD}Start installation?${NC} [Y/n]"
         local answer
         read -rp "> " answer
         case "$answer" in
