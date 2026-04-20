@@ -3,7 +3,7 @@
 # Loaded automatically by install.sh from gnome/desktop/
 
 [org/gnome/shell/extensions/just-perfection]
-notification-banner-position=2
+notification-banner-position=5
 keyboard-layout=false
 top-panel-position=1
 clock-menu-position=1
