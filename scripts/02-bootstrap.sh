@@ -39,7 +39,6 @@ clone_repo() {
 # ─── Install gum (Charmbracelet TUI toolkit) ───────────────────────────────────
 install_gum() {
     if command -v gum &>/dev/null; then
-        info "gum is already installed."
         return
     fi
 
