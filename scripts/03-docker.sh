@@ -70,7 +70,8 @@ install_docker() {
 
     sudo systemctl enable --now docker 2>/dev/null || true
     sudo usermod -aG docker "$(whoami)" 2>/dev/null || true
-    info "Docker installed. Log out and back in for group membership to take effect."
+    info "Docker installed."
+    info "Log out and back in for group membership to take effect."
 }
 
 # ─── Install Tailscale ──────────────────────────────────────────────────────────
@@ -202,7 +203,8 @@ create_docker_web_apps() {
     done
 
     if [ "$created" = true ]; then
-        info "Web app shortcuts created. You can also manage them in Web App Hub."
+        info "Web app shortcuts created."
+        info "You can also manage them in Web App Hub."
     fi
 }
 
