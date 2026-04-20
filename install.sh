@@ -69,7 +69,8 @@ _early_install_git() {
 
 _early_clone_repo() {
     if [ -d "$DOTFILES_DIR/.git" ]; then
-        info "Dotfiles already present at $DOTFILES_DIR - pulling latest changes..."
+        info "Dotfiles already present at $DOTFILES_DIR."
+        info "Pulling latest changes..."
         git -C "$DOTFILES_DIR" pull --ff-only
     else
         info "Cloning 02Gnome to $DOTFILES_DIR..."
