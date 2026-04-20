@@ -89,12 +89,6 @@ install_tailscale() {
     info "Tailscale installed and started."
 }
 
-# ─── Docker Compose services (interactive chooser) ─────────────────────────────
-DOCKER_SERVICES=(
-    "Immich|immich"
-    "Ollama + Open WebUI|ollama"
-    "ZeroTier One|zerotierone"
-)
 
 select_and_install_docker_services() {
     echo ""

@@ -2,16 +2,6 @@
 # 02Gnome - Application installers (essential Flatpaks, optional apps, .NET, OpenCode)
 # Sourced by install.sh - do not run directly.
 
-# ─── Essential Flatpak applications (always installed) ──────────────────────────
-ESSENTIAL_FLATPAK_APPS=(
-    "com.mattjakeman.ExtensionManager"     # Extension Manager - browse & toggle GNOME extensions
-    "com.github.tchx84.Flatseal"           # Flatseal - manage Flatpak permissions
-    "io.github.fabrialberio.pinapp"        # Pins - create custom app shortcuts
-    "dev.qwery.AddWater"                   # Add Water - apply Adwaita theme to Firefox
-    "io.github.swordpuffin.rewaita"        # Rewaita - bring color to Adwaita
-    "io.missioncenter.MissionCenter"       # Mission Center - system monitor
-    "org.pvermeer.WebAppHub"               # Web App Hub - manage web applications
-)
 
 install_essential_flatpaks() {
     info "Installing essential Flatpak applications..."
@@ -58,27 +48,6 @@ install_essential_flatpaks() {
     fi
 }
 
-# ─── Optional applications (interactive chooser) ───────────────────────────────
-OPTIONAL_APPS=(
-    # Entertainment
-    "Steam|rpm:steam"
-    "Discord|flatpak:com.discordapp.Discord"
-    "Signal|flatpak:org.signal.Signal"
-    "VLC|flatpak:org.videolan.VLC"
-    # Creative
-    "Blender|flatpak:org.blender.Blender"
-    "GIMP|flatpak:org.gimp.GIMP"
-    "Unity Hub|flatpak:com.unity.UnityHub"
-    # Utilities
-    "Visual Studio Code|flatpak:com.visualstudio.code"
-    "JetBrains Rider|flatpak:com.jetbrains.Rider"
-    "GitHub Desktop|flatpak:io.github.shiftey.Desktop"
-    "Trayscale (Tailscale GUI)|flatpak:dev.deedles.Trayscale"
-    # Developer Tools
-    "OpenCode (AI coding agent)|script:opencode"
-    # Runtimes
-    ".NET SDK & Runtimes|script:dotnet"
-)
 
 # ─── .NET SDK installer ─────────────────────────────────────────────────────────
 install_dotnet() {

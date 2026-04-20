@@ -99,7 +99,8 @@ BANNER
     _early_install_git
     _early_clone_repo
 
-    # 2. Source all modules from the cloned repo
+    # 2. Source user configuration, then all modules
+    source "$DOTFILES_DIR/config.sh"
     _source_modules
 
     # 3. Bootstrap tooling (gum TUI)
@@ -116,14 +117,19 @@ BANNER
     # 5b. Ask user before starting configuration
     echo ""
     info "Repository cloned to ${BOLD}${DOTFILES_DIR}${NC}"
-    info "You can personalise your setup by editing the modular dconf files in:"
-    info "  ${BOLD}${DOTFILES_DIR}/gnome/${profile}/${NC}"
     info ""
-    info "  01-interface.dconf  – Theme, fonts, window buttons, shell favorites"
-    info "  02-shortcuts.dconf  – Keyboard shortcuts & custom keybindings"
-    info "  03-dock.dconf       – Dash to Dock appearance & behaviour"
-    info "  04-extensions.dconf – All GNOME Shell extension settings"
-    info "  05-apps.dconf       – App preferences, power, mouse & touchpad"
+    info "Customise your installation by editing:"
+    info "  ${BOLD}${DOTFILES_DIR}/config.sh${NC}  - Apps, extensions, bloat list, dock pins, Docker services"
+    info "  ${BOLD}${DOTFILES_DIR}/gnome/${profile}/${NC}  - dconf settings (theme, shortcuts, dock, etc.)"
+    echo ""
+    info "  config.sh arrays you can edit:"
+    info "    ESSENTIAL_FLATPAK_APPS   - Flatpaks always installed"
+    info "    OPTIONAL_APPS            - Apps offered in the interactive chooser"
+    info "    GNOME_EXTENSIONS         - Shell extensions to install & enable"
+    info "    GNOME_EXTENSIONS_DISABLED- Extensions installed but kept disabled"
+    info "    GNOME_BLOAT_APPS         - Pre-installed apps to remove"
+    info "    OPTIONAL_PIN_ORDER       - Dock pin order for optional apps"
+    info "    DOCKER_SERVICES          - Docker Compose services to offer"
     echo ""
 
     local do_continue=true

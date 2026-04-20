@@ -2,29 +2,6 @@
 # 02Gnome - GNOME Shell extensions installer
 # Sourced by install.sh - do not run directly.
 
-# ─── GNOME Shell extensions ────────────────────────────────────────────────────
-# Format: "uuid|Human-readable name"
-GNOME_EXTENSIONS=(
-    "appindicatorsupport@rgcjonas.gmail.com|AppIndicator & KStatusNotifierItem Support"
-    "arcmenu@arcmenu.com|ArcMenu"
-    "clipboard-history@alexsaveau.dev|Clipboard History"
-    "dash-to-dock@micxgx.gmail.com|Dash to Dock"
-    "gtk4-ding@smedius.gitlab.com|Gtk4 Desktop Icons NG (DING)"
-    "just-perfection-desktop@just-perfection|Just Perfection"
-    "logomenu@aryan_k|Logo Menu"
-    "panel-corners@aunetx|Panel Corners"
-    "pip-on-top@rafostar.github.com|PiP on top"
-    "quick-settings-audio-panel@rayzeq.github.io|Quick Settings Audio Panel"
-    "restartto@tiagoporsch.github.io|Restart To"
-    "user-theme@gnome-shell-extensions.gcampax.github.com|User Themes"
-    "azwallpaper@azwallpaper.gitlab.com|Wallpaper Slideshow"
-)
-
-# Extensions to install but keep disabled by default
-GNOME_EXTENSIONS_DISABLED=(
-    "rounded-window-corners@fxgn|Rounded Window Corners Reborn"
-    "Vitals@CoreCoding.com|Vitals"
-)
 
 # ─── Patch extension metadata.json with current GNOME Shell version ─────────────
 patch_extension_metadata() {

@@ -327,18 +327,6 @@ reset_app_grid() {
     info "App grid reset - all apps will appear in a single alphabetical view."
 }
 
-# ─── Pin installed optional apps to favorites ──────────────────────────────────
-OPTIONAL_PIN_ORDER=(
-    "com.valvesoftware.Steam|steam"
-    "com.discordapp.Discord|discord"
-    "org.signal.Signal|signal-desktop"
-    "org.blender.Blender|blender"
-    "org.gimp.GIMP|gimp"
-    "com.unity.UnityHub|unityhub"
-    "com.visualstudio.code|code"
-    "com.jetbrains.Rider|jetbrains-rider"
-    "io.github.shiftey.Desktop|github-desktop"
-)
 
 _resolve_desktop_file() {
     local flatpak_id="$1"

@@ -54,28 +54,6 @@ ask_download_wallpapers() {
     fi
 }
 
-# ─── Uninstall GNOME bloatware ──────────────────────────────────────────────────
-GNOME_BLOAT_APPS=(
-    "org.gnome.Boxes|gnome-boxes|gnome-boxes|Boxes"
-    "org.gnome.Calendar|gnome-calendar|gnome-calendar|Calendar"
-    "org.gnome.Snapshot|snapshot|snapshot|Camera"
-    "org.gnome.Characters|gnome-characters|gnome-characters|Characters"
-    "org.gnome.clocks|gnome-clocks|gnome-clocks|Clocks"
-    "org.gnome.Connections|gnome-connections|gnome-connections|Connections"
-    "org.gnome.Contacts|gnome-contacts|gnome-contacts|Contacts"
-    "org.gnome.Extensions|gnome-extensions-app|gnome-extensions-app|Extensions"
-    "org.gnome.baobab|baobab|baobab|Disk Usage Analyser"
-    "org.gnome.SimpleScan|simple-scan|simple-scan|Document Scanner"
-    "org.fedoraproject.MediaWriter|mediawriter|-|Fedora Media Writer"
-    "org.gnome.Yelp|yelp|yelp|Help"
-    "-|libreoffice-calc|libreoffice-still-calc|LibreOffice Calc"
-    "-|libreoffice-impress|libreoffice-still-impress|LibreOffice Impress"
-    "-|libreoffice-writer|libreoffice-still-writer|LibreOffice Writer"
-    "org.gnome.Maps|gnome-maps|gnome-maps|Maps"
-    "org.gnome.SystemMonitor|gnome-system-monitor|gnome-system-monitor|System Monitor"
-    "org.gnome.Tour|gnome-tour|gnome-tour|Tour"
-    "org.gnome.Weather|gnome-weather|gnome-weather|Weather"
-)
 
 ask_uninstall_bloat() {
     echo ""
