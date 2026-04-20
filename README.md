@@ -5,7 +5,7 @@ Automate your GNOME desktop in one command.<br>Extensions, themes, apps, and set
 <p align="center" style="text-align:center">
 20 minutes is all it takes to go from zero to a custom Fedora environment using 02Gnome.
 <br><em>
-Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), as well as other GNOME-based distros (Nobara, Ubuntu, Arch, etc.).
+Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), and other distros (Nobara, Ubuntu, Arch, etc.).
 </em></p>
 
 <p align="center" style="text-align:center">
