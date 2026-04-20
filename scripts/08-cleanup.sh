@@ -90,8 +90,9 @@ ask_uninstall_bloat() {
         if [ "$flatpak_id" != "-" ]; then
             if flatpak list --app --columns=application 2>/dev/null | grep -qx "$flatpak_id"; then
                 info "Removing Flatpak: $label..."
-                flatpak uninstall -y "$flatpak_id" 2>/dev/null \
-                    || warning "Failed to remove Flatpak $label."
+                if ! flatpak uninstall -y --noninteractive "$flatpak_id" >/dev/null 2>&1; then
+                    warning "Failed to remove Flatpak $label."
+                fi
             fi
         fi
 
@@ -210,7 +211,7 @@ final_cleanup() {
         info "Updating Flatpak applications..."
         flatpak update -y --noninteractive || warning "flatpak update encountered an error."
         info "Removing unused Flatpak runtimes..."
-        flatpak uninstall --unused -y 2>/dev/null || true
+        flatpak uninstall --unused -y --noninteractive >/dev/null 2>&1 || true
         info "Repairing Flatpak installation..."
         flatpak repair 2>/dev/null || true
     fi
