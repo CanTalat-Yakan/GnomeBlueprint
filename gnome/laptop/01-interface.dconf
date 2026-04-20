@@ -1,0 +1,32 @@
+# 02Gnome - Laptop: Interface, window manager & shell
+#
+# Loaded automatically by install.sh from gnome/laptop/
+
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+gtk-theme='adw-gtk3-dark'
+icon-theme='Adwaita'
+font-name='Cantarell 11'
+monospace-font-name='Source Code Pro 10'
+clock-show-weekday=true
+clock-show-date=true
+show-battery-percentage=false
+
+[org/gnome/desktop/wm/preferences]
+button-layout='appmenu:minimize,maximize,close'
+
+[org/gnome/mutter]
+dynamic-workspaces=true
+workspaces-only-on-primary=true
+
+[org/gnome/shell]
+favorite-apps=['org.mozilla.firefox.desktop', 'org.gnome.Nautilus.desktop', 'org.gnome.Ptyxis.desktop', 'org.gnome.Software.desktop']
+enabled-extensions=['appindicatorsupport@rgcjonas.gmail.com', 'arcmenu@arcmenu.com', 'clipboard-history@alexsaveau.dev', 'dash-to-dock@micxgx.gmail.com', 'gtk4-ding@smedius.gitlab.com', 'just-perfection-desktop@just-perfection', 'logomenu@aryan_k', 'panel-corners@aunetx', 'pip-on-top@rafostar.github.com', 'quick-settings-audio-panel@rayzeq.github.io', 'restartto@tiagoporsch.github.io', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'azwallpaper@azwallpaper.gitlab.com']
+disabled-extensions=['Vitals@CoreCoding.com', 'rounded-window-corners@fxgn']
+
+[org/gnome/desktop/app-folders]
+folder-children=@as []
+
+[org/gnome/desktop/input-sources]
+xkb-options=@as []
+

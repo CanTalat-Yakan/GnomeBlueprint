@@ -1,0 +1,95 @@
+# 02Gnome - Laptop: GNOME Shell extension settings
+#
+# Loaded automatically by install.sh from gnome/laptop/
+
+[org/gnome/shell/extensions/just-perfection]
+keyboard-layout=false
+top-panel-position=0
+clock-menu-position=0
+events-button=false
+search=false
+startup-status=0
+weather=false
+world-clock=false
+ripple-box=false
+quick-settings-airplane-mode=false
+quick-settings-do-not-disturb=false
+quick-settings-night-light=false
+calendar=true
+dash=true
+dash-app-running=true
+dash-separator=true
+panel-notification-icon=true
+power-icon=true
+switcher-popup-delay=true
+window-menu=true
+window-menu-take-screenshot-button=true
+
+[org/gnome/shell/extensions/appindicator]
+tray-pos='right'
+legacy-tray-enabled=false
+
+[org/gnome/shell/extensions/arcmenu]
+menu-button-appearance='None'
+menu-layout='GnomeMenu'
+hide-overview-on-startup=true
+show-activities-button=true
+arcmenu-hotkey=@as []
+arcmenu-hotkey-overlay-key-enabled=false
+hotkey-open-primary-monitor=false
+runner-hotkey=['<Super>space']
+runner-position='Centered'
+runner-hotkey-open-primary-monitor=false
+runner-hotkey-overlay-key-enabled=false
+search-entry-border-radius=(true, 25)
+
+[org/gnome/shell/extensions/clipboard-history]
+cache-size=100
+display-mode=3
+toggle-menu=['<Shift><Super>v']
+
+[org/gnome/shell/extensions/Logo-menu]
+menu-button-icon-size=32
+symbolic-icon=false
+use-custom-icon=true
+custom-icon-path='DOTFILES_DIR/icons/tux-logo.svg'
+menu-button-terminal='ptyxis --new-window'
+menu-button-system-monitor='flatpak run io.missioncenter.MissionCenter'
+menu-button-extensions-app='com.mattjakeman.ExtensionManager.desktop'
+
+[org/gnome/shell/extensions/panel-corners]
+panel-corners=true
+
+[org/gnome/shell/extensions/rounded-window-corners-reborn]
+border-width=1
+settings-version=uint32 7
+skip-libadwaita-app=false
+focused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
+unfocused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
+
+[org/gnome/shell/extensions/gtk4-ding]
+show-home=false
+show-trash=false
+show-volumes=false
+
+[org/gnome/shell/extensions/user-theme]
+name=''
+
+[org/gnome/shell/extensions/vitals]
+alphabetize=true
+fixed-widths=false
+hide-icons=false
+hide-zeros=true
+hot-sensors=['__temperature_avg__', '_memory_available_']
+icon-style=1
+menu-centered=true
+position-in-panel=0
+show-battery=true
+show-gpu=true
+show-network=true
+show-system=true
+show-temperature=true
+show-voltage=true
+update-time=3
+use-higher-precision=false
+

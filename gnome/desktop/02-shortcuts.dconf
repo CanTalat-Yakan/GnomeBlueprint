@@ -1,0 +1,22 @@
+# 02Gnome - Desktop: Keyboard shortcuts
+#
+# Loaded automatically by install.sh from gnome/desktop/
+
+[org/gnome/desktop/wm/keybindings]
+show-desktop=['<Super>d']
+switch-input-source=@as []
+switch-input-source-backward=@as []
+
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/', '/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='<Super>e'
+command='nautilus'
+name='Files'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='<Super>t'
+command='ptyxis'
+name='Terminal'
+
