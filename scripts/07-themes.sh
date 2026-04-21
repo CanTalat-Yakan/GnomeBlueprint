@@ -199,11 +199,30 @@ configure_addwater() {
     fi
 }
 
+# ─── Resolve Firefox repo asset paths ──────────────────────────────────────────
+_resolve_firefox_repo_file() {
+    local rel_path="$1"
+    local candidate
+
+    for candidate in \
+        "$DOTFILES_DIR/firefox/$rel_path" \
+        "$DOTFILES_DIR/firefox-profile/$rel_path"
+    do
+        if [ -f "$candidate" ]; then
+            echo "$candidate"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 # ─── Configure Firefox preferences ─────────────────────────────────────────────
 configure_firefox() {
     info "Configuring Firefox preferences..."
 
-    local src_user_js="$DOTFILES_DIR/firefox-profile/user.js"
+    local src_user_js
+    src_user_js=$(_resolve_firefox_repo_file "user.js") || true
     if [ ! -f "$src_user_js" ]; then
         warning "No user.js found in repo - skipping Firefox configuration."
         return
@@ -315,7 +334,8 @@ configure_firefox() {
 
     info "Firefox preferences applied (takes effect on next Firefox launch)."
 
-    local src_policies="$DOTFILES_DIR/firefox-profile/policies.json"
+    local src_policies
+    src_policies=$(_resolve_firefox_repo_file "policies.json") || true
     if [ -f "$src_policies" ]; then
         info "Deploying Firefox enterprise policies (search engine, toolbar)..."
 

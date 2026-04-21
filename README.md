@@ -219,8 +219,8 @@ docker compose up -d      # Restart with new images
 │   │   ├── immich.png              # Immich web app icon
 │   │   ├── open-webui-light.png    # Open WebUI web app icon
 │   │   ├── tailscale-light.png     # Tailscale web app icon
-│   │   ├── tux-logo.svg           # Tux (Linux) logo icon
-│   │   └── zerotier.png           # ZeroTier web app icon
+│   │   ├── tux-logo.svg            # Tux (Linux) logo icon
+│   │   └── zerotier.png            # ZeroTier web app icon
 │   └── themes/
 │       ├── dark/                   # Default and Oled pure-black CSS themes
 │       └── light/                  # Default light CSS theme
