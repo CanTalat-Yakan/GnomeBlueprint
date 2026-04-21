@@ -217,6 +217,52 @@ _resolve_firefox_repo_file() {
     return 1
 }
 
+_has_firefox_profiles() {
+    local root
+    for root in "$@"; do
+        [ -f "$root/profiles.ini" ] && return 0
+        [ -d "$root" ] || continue
+        if find "$root" -maxdepth 2 -name 'prefs.js' -type f -print -quit 2>/dev/null | grep -q .; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+_stop_firefox_processes() {
+    pkill -x firefox 2>/dev/null || true
+    pkill -x firefox-esr 2>/dev/null || true
+    pkill -f '/app/lib/firefox/firefox' 2>/dev/null || true
+    pkill -f 'org.mozilla.firefox' 2>/dev/null || true
+    pkill -f 'snap/firefox' 2>/dev/null || true
+}
+
+_start_firefox_headless_for_profile_init() {
+    if command -v firefox &>/dev/null; then
+        firefox --headless &>/dev/null &
+        return 0
+    fi
+
+    if command -v firefox-esr &>/dev/null; then
+        firefox-esr --headless &>/dev/null &
+        return 0
+    fi
+
+    if have_flatpak_app org.mozilla.firefox; then
+        (flatpak run --command=firefox org.mozilla.firefox --headless \
+            || flatpak run org.mozilla.firefox --headless) &>/dev/null &
+        return 0
+    fi
+
+    if have_snap_app firefox; then
+        snap run firefox --headless &>/dev/null &
+        return 0
+    fi
+
+    return 1
+}
+
 # ─── Configure Firefox preferences ─────────────────────────────────────────────
 configure_firefox() {
     info "Configuring Firefox preferences..."
@@ -238,28 +284,41 @@ configure_firefox() {
     )
 
     local needs_init=true
-    for root in "${search_roots[@]}"; do
-        if [ -f "$root/profiles.ini" ]; then
-            needs_init=false
-            break
-        fi
-    done
+    if _has_firefox_profiles "${search_roots[@]}"; then
+        needs_init=false
+    fi
 
     if [ "$needs_init" = true ]; then
         info "Launching Firefox briefly to create profile directories..."
-        pkill -f firefox 2>/dev/null || true
+        _stop_firefox_processes
         sleep 1
-        firefox --headless &>/dev/null &
-        local ff_pid=$!
-        sleep 5
-        kill "$ff_pid" 2>/dev/null || true
-        wait "$ff_pid" 2>/dev/null || true
+
+        if _start_firefox_headless_for_profile_init; then
+            local waited=0
+            while [ "$waited" -lt 15 ]; do
+                sleep 1
+                if _has_firefox_profiles "${search_roots[@]}"; then
+                    break
+                fi
+                waited=$((waited + 1))
+            done
+        else
+            warning "Firefox executable not found on PATH and no Flatpak/Snap Firefox install was detected."
+        fi
+
+        _stop_firefox_processes
         sleep 1
-        info "Firefox profile directories created."
+
+        if _has_firefox_profiles "${search_roots[@]}"; then
+            info "Firefox profile directories created."
+        else
+            warning "Firefox profile directories were not detected after launch attempt."
+            warning "Launch Firefox once manually, close it, then re-run the installer to configure it."
+        fi
     else
-        if pgrep -x firefox &>/dev/null; then
+        if pgrep -x firefox &>/dev/null || pgrep -x firefox-esr &>/dev/null; then
             info "Closing Firefox to apply toolbar and preference changes..."
-            pkill -x firefox 2>/dev/null || true
+            _stop_firefox_processes
             sleep 3
         fi
     fi

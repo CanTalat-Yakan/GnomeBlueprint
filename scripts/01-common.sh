@@ -102,6 +102,24 @@ install_one_flatpak() {
     fi
 }
 
+have_flatpak_app() {
+    local app="$1"
+    command -v flatpak &>/dev/null \
+        && flatpak list --app --columns=application 2>/dev/null | grep -qx "$app"
+}
+
+have_snap_app() {
+    local app="$1"
+    command -v snap &>/dev/null && snap list "$app" &>/dev/null
+}
+
+have_firefox_install() {
+    command -v firefox &>/dev/null \
+        || command -v firefox-esr &>/dev/null \
+        || have_flatpak_app org.mozilla.firefox \
+        || have_snap_app firefox
+}
+
 # ─── RPM Fusion setup ────────────────────────────────────────────────────────────
 ensure_rpmfusion() {
     if ! command -v dnf &>/dev/null && [ "$IS_ATOMIC" != true ]; then

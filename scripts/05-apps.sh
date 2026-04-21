@@ -10,7 +10,7 @@ install_essential_flatpaks() {
     done
 
     # Install Firefox if not already present
-    if ! command -v firefox &>/dev/null && ! flatpak list 2>/dev/null | grep -q org.mozilla.firefox; then
+    if ! have_firefox_install; then
         info "Installing Firefox..."
         if [ "$IS_ATOMIC" = true ]; then
             install_one_flatpak "org.mozilla.firefox"
