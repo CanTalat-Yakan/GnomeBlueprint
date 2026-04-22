@@ -1,6 +1,6 @@
 <h1 align="center" style="text-align:center">02Gnome</h1>
 <h4 align="center" style="text-align:center">
-Configre and cusotmize your GNOME environment in one command.<br>Extensions, themes, apps, and settings. All configured interactively.
+Configure and customize your GNOME environment in one command.<br>Extensions, themes, apps, and settings. All set up interactively.
 </h4>
 <p align="center" style="text-align:center">
 20 minutes is all it takes to go from zero to a custom Fedora environment using 02Gnome.
