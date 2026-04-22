@@ -37,6 +37,7 @@ curl -fsSL bit.ly/02gnome | bash
 - [Quick Installation](#quick-installation)
 - [Desktop Profile](#desktop-profile)
 - [Laptop Profile](#laptop-profile)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Theming](#theming)
 - [Bloat Removal](#bloat-removal)
 - [What the Installer Does](#what-the-installer-does)
@@ -56,7 +57,6 @@ curl -fsSL bit.ly/02gnome | bash
 - Dynamic workspaces
 - Blank screen: never / no idle dim
 - No touchpad natural scroll / tap-to-click
-- `Super+D` show desktop, `Super+E` files, `Super+T` terminal, `Super+Space` ArcMenu runner
 
 ![screenshot-desktop.png](.github/assets/screenshot-desktop.png)
 
@@ -67,9 +67,18 @@ curl -fsSL bit.ly/02gnome | bash
 - Battery percentage shown, ambient brightness enabled
 - Lid close → suspend (resumes instantly on open)
 - Tap-to-click, natural scroll, two-finger scrolling
-- Same keyboard shortcuts as Desktop
 
 ![screenshot-laptop.png](.github/assets/screenshot-laptop.png)
+
+## Keyboard Shortcuts
+
+These shortcuts are configured as part of the GNOME profile setup:
+
+- `Super+D` show desktop
+- `Super+E` open Files
+- `Super+T` open Terminal
+- `Super+Space` open the ArcMenu runner
+- `Super+C` launch OpenCode
 
 ## Theming
 
