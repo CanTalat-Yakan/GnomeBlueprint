@@ -3,11 +3,11 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Usage (one-liner):
-#   curl -fsSL https://raw.githubusercontent.com/CanTalat-Yakan/02Gnome/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/EggyStudio/02Gnome/main/install.sh | bash
 
 set -euo pipefail
 
-REPO_URL="https://github.com/CanTalat-Yakan/02Gnome"
+REPO_URL="https://github.com/EggyStudio/02Gnome"
 DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.dotfiles}"
 GUM_AVAILABLE=true
 USE_OLED=false

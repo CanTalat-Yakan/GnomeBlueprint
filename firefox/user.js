@@ -1,6 +1,6 @@
 /* user.js
  * GnomeBlueprint Firefox preferences
- * https://github.com/CanTalat-Yakan/GnomeBlueprint
+ * https://github.com/EggyStudio/GnomeBlueprint
  */
 
 // ─── Firefox GNOME Theme (Add Water) ──────────────────────────────────────────

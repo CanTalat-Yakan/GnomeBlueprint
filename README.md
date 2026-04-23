@@ -14,7 +14,7 @@ Works on Fedora Workstation and atomic variants (Silverblue, Bazzite), and other
   <img alt="Shell" src="https://img.shields.io/badge/Shell-Bash-4EAA25">
   <img alt="TUI" src="https://img.shields.io/badge/TUI-gum-FF75B5">
   <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/License-GPLv3-blue.svg"></a>
-  <a href="https://deepwiki.com/CanTalat-Yakan/02Gnome"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
+  <a href="https://deepwiki.com/EggyStudio/02Gnome"><img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg"></a>
 </p>
 
 ## Recommended Base Install
