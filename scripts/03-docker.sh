@@ -90,6 +90,31 @@ install_tailscale() {
     info "Tailscale installed and started."
 }
 
+ask_install_tailscale() {
+    echo ""
+
+    local want_tailscale=false
+
+    if [ "$GUM_AVAILABLE" = true ] && command -v gum &>/dev/null; then
+        if gum_confirm_styled --default=no "  Install Tailscale (VPN)?"; then
+            want_tailscale=true
+        fi
+    else
+        echo -e "${CYAN}${BOLD}Install Tailscale (VPN)?${NC} [y/N]"
+        local answer
+        read -rp "> " answer
+        case "$answer" in
+            [yY]*) want_tailscale=true ;;
+        esac
+    fi
+
+    if [ "$want_tailscale" = true ]; then
+        install_tailscale
+    else
+        info "Skipping Tailscale."
+    fi
+}
+
 
 select_and_install_docker_services() {
     echo ""
