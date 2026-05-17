@@ -127,7 +127,7 @@ install_flatpak() {
     fi
 
     info "Adding Flathub remote (if not already present)..."
-    flatpak remote-add --if-not-exists flathub \
+    flatpak remote-add --if-not-exists --user flathub \
         https://dl.flathub.org/repo/flathub.flatpakrepo || true
 }
 
