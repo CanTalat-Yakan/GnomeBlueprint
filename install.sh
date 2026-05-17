@@ -146,7 +146,7 @@ BANNER
     # 7. Core setup
     install_flatpak
     install_docker
-    install_tailscale
+    ask_install_tailscale
     install_fastfetch
 
     # 7. Apply profile-specific dconf settings (base layer)
