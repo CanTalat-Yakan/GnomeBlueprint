@@ -61,7 +61,7 @@ _early_install_git() {
     elif command -v apt-get &>/dev/null; then
         sudo apt-get update -y && sudo apt-get install -y git
     elif command -v pacman &>/dev/null; then
-        sudo pacman -Sy --noconfirm git
+        sudo pacman -S --noconfirm git
     else
         error "Cannot install git. Please install it manually and re-run."
         exit 1
