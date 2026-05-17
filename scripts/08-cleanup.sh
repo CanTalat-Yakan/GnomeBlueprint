@@ -113,7 +113,8 @@ ask_uninstall_bloat() {
             elif command -v dnf &>/dev/null; then
                 safe_dnf_remove "$dnf_pkg" "$label"
             fi
-        elif [ "$pacman_pkg" != "-" ] && command -v pacman &>/dev/null; then
+        fi
+        if [ "$pacman_pkg" != "-" ] && command -v pacman &>/dev/null; then
             safe_pacman_remove "$pacman_pkg" "$label"
         fi
     done
@@ -151,7 +152,11 @@ install_nvidia_drivers() {
     fi
 
     if [ "$do_nvidia" = true ]; then
-        ensure_rpmfusion
+        if ! command -v dnf &>/dev/null && [ "$IS_ATOMIC" != true ]; then
+            warning "NVIDIA driver install via RPM Fusion is only supported on Fedora/RPM-based systems."
+            return
+        fi
+        ensure_rpmfusion || { warning "Could not enable RPM Fusion - skipping NVIDIA driver install."; return; }
         if [ "$IS_ATOMIC" = true ]; then
             info "Installing NVIDIA drivers via rpm-ostree (akmod-nvidia + CUDA + VA-API)..."
             rpm-ostree install --idempotent --allow-inactive -y \
