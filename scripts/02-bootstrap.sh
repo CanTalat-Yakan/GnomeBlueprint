@@ -17,7 +17,7 @@ install_git() {
     elif command -v dnf &>/dev/null; then
         sudo dnf install -y git
     elif command -v pacman &>/dev/null; then
-        sudo pacman -Sy --noconfirm git
+        sudo pacman -S --noconfirm git
     else
         error "Unsupported package manager. Please install git manually and re-run this script."
         exit 1
@@ -90,13 +90,14 @@ gpgkey=https://repo.charm.sh/yum/gpg.key' | sudo tee /etc/yum.repos.d/charm.repo
         sudo dnf install -y gum
 
     elif command -v pacman &>/dev/null; then
-        if command -v yay &>/dev/null; then
+        if sudo pacman -S --noconfirm gum 2>/dev/null; then
+            : # installed from official repos
+        elif command -v yay &>/dev/null; then
             yay -S --noconfirm gum
         elif command -v paru &>/dev/null; then
             paru -S --noconfirm gum
         else
-            warning "gum is not in the official Arch repos. Install an AUR helper (yay/paru) to get gum."
-            warning "Falling back to plain-text selection."
+            warning "Could not install gum - falling back to plain-text selection."
             GUM_AVAILABLE=false
             return
         fi
@@ -117,7 +118,7 @@ install_flatpak() {
         elif command -v dnf &>/dev/null; then
             sudo dnf install -y flatpak
         elif command -v pacman &>/dev/null; then
-            sudo pacman -Sy --noconfirm flatpak
+            sudo pacman -S --noconfirm flatpak
         else
             error "Unsupported package manager. Please install flatpak manually."
             exit 1
@@ -166,7 +167,7 @@ install_fastfetch() {
     elif command -v apt-get &>/dev/null; then
         sudo apt-get install -y fastfetch || warning "Could not install fastfetch."
     elif command -v pacman &>/dev/null; then
-        sudo pacman -Sy --noconfirm fastfetch || warning "Could not install fastfetch."
+        sudo pacman -S --noconfirm fastfetch || warning "Could not install fastfetch."
     else
         warning "Unsupported package manager - skipping fastfetch install."
     fi
