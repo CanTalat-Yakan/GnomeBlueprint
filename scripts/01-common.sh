@@ -64,7 +64,7 @@ pkg_install() {
         sudo apt-get install -y "$pkg" 2>/dev/null \
             || warning "Could not install $pkg via apt."
     elif command -v pacman &>/dev/null; then
-        sudo pacman -Sy --noconfirm "$pkg" 2>/dev/null \
+        sudo pacman -S --noconfirm "$pkg" 2>/dev/null \
             || warning "Could not install $pkg via pacman."
     else
         warning "No supported package manager found to install $pkg."
@@ -147,18 +147,22 @@ ensure_rpmfusion() {
 # ─── Install a single RPM package (enables RPM Fusion if needed) ────────────────
 install_one_rpm() {
     local pkg="$1"
+    if ! command -v dnf &>/dev/null && [ "$IS_ATOMIC" != true ]; then
+        warning "$pkg is an RPM package and cannot be installed on this system - skipping."
+        return
+    fi
     if rpm -q "$pkg" &>/dev/null; then
         info "$pkg is already installed."
         return
     fi
     if [ "$IS_ATOMIC" = true ]; then
         info "Installing $pkg via rpm-ostree..."
-        ensure_rpmfusion
+        ensure_rpmfusion || { warning "Could not enable RPM Fusion - skipping $pkg."; return; }
         pkg_install "$pkg"
     else
         info "Installing $pkg via RPM..."
         if ! sudo dnf install -y "$pkg" 2>/dev/null; then
-            ensure_rpmfusion
+            ensure_rpmfusion || { warning "Could not enable RPM Fusion - skipping $pkg."; return; }
             sudo dnf install -y "$pkg" || warning "Could not install $pkg via dnf."
         fi
     fi
