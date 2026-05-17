@@ -22,8 +22,21 @@ mono_crash.*
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
-x64/
-x86/
+
+[Dd]ebug/x64/
+[Dd]ebugPublic/x64/
+[Rr]elease/x64/
+[Rr]eleases/x64/
+bin/x64/
+obj/x64/
+
+[Dd]ebug/x86/
+[Dd]ebugPublic/x86/
+[Rr]elease/x86/
+[Rr]eleases/x86/
+bin/x86/
+obj/x86/
+
 [Ww][Ii][Nn]32/
 [Aa][Rr][Mm]/
 [Aa][Rr][Mm]64/
@@ -39,9 +52,6 @@ bld/
 # Uncomment if you have tasks that rely on *.refresh files to move binaries
 # (https://github.com/github/gitignore/pull/3736)
 #!**/[Bb]in/*.refresh
-
-# JetBrains IDEs
-.idea/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -313,9 +323,6 @@ node_modules/
 # Visual Studio 6 auto-generated workspace file (contains which files were open etc.)
 *.vbw
 
-# Visual Studio 6 auto-generated project file (contains which files were open etc.)
-*.vbp
-
 # Visual Studio 6 workspace and project file (working project files containing files to include in project)
 *.dsw
 *.dsp
@@ -419,3 +426,46 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ------------------------------------------------------
+# JetBrains Rider / IntelliJ IDEA
+# ------------------------------------------------------
+# Ignore entire project .idea directory (Rider stores per-solution config here)
+.idea/
+# Legacy IntelliJ-based project files
+*.iml
+*.iws
+*.ipr
+# Rider sometimes generates per-solution module files
+*.sln.iml
+# Optional: JetBrains run configurations outside .idea
+.run/
+
+# JetBrains Fleet (if used)
+.fleet/
+
+# VS Code (if someone opens this workspace there)
+.vscode/
+
+# OS-specific junk
+.DS_Store
+Thumbs.db
+
+# Editor swap/backup files
+*.swp
+*.swo
+*.orig
+
+# .NET local development overrides (keep shared appsettings in repo)
+appsettings.*.local.json
+appsettings.Local.json
+appsettings.Development.local.json
+
+# CI/CD workflows to ignore
+.github/workflows/publish-nuget.yml
+
+# Dear ImGui layout file (generated at runtime)
+**/imgui.ini
+
+# Claude files
+.claude
