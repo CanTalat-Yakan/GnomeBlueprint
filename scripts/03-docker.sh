@@ -61,7 +61,7 @@ install_docker() {
             || { warning "Docker install failed - skipping."; return; }
 
     elif command -v pacman &>/dev/null; then
-        sudo pacman -Sy --noconfirm docker docker-compose \
+        sudo pacman -S --noconfirm docker docker-compose \
             || { warning "Docker install failed - skipping."; return; }
     else
         warning "Unsupported package manager - skipping Docker install."
