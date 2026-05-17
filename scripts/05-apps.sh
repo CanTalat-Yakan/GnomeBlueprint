@@ -18,7 +18,7 @@ install_essential_flatpaks() {
             sudo dnf install -y firefox \
                 || warning "Could not install Firefox via dnf."
         elif command -v pacman &>/dev/null; then
-            sudo pacman -Sy --noconfirm firefox \
+            sudo pacman -S --noconfirm firefox \
                 || warning "Could not install Firefox via pacman."
         elif command -v apt-get &>/dev/null; then
             sudo apt-get install -y firefox \
@@ -39,7 +39,7 @@ install_essential_flatpaks() {
             || warning "Could not install gnome-tweaks."
     elif command -v pacman &>/dev/null; then
         pacman -Qi gnome-tweaks &>/dev/null 2>&1 \
-            || sudo pacman -Sy --noconfirm gnome-tweaks \
+            || sudo pacman -S --noconfirm gnome-tweaks \
             || warning "Could not install gnome-tweaks."
     elif command -v apt-get &>/dev/null; then
         dpkg -s gnome-tweaks &>/dev/null 2>&1 \
