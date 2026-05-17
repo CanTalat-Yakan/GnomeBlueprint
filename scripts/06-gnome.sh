@@ -25,7 +25,8 @@ import_gnome_settings() {
         local fname
         fname=$(basename "$dconf_file")
         info "  Loading ${fname}..."
-        sed "s|DOTFILES_DIR|${DOTFILES_DIR}|g" "$dconf_file" | dconf load /
+        sed "s|DOTFILES_DIR|${DOTFILES_DIR}|g" "$dconf_file" | dconf load / || \
+            warning "Failed to load ${fname} - skipping."
         count=$((count + 1))
     done
 
@@ -45,7 +46,7 @@ select_profile() {
             --header "  Select a profile:" \
             "Desktop" \
             "Laptop" \
-            | tr '[:upper:]' '[:lower:]')
+            | tr '[:upper:]' '[:lower:]') || true
     else
         echo ""
         echo -e "${CYAN}${BOLD}Select a profile:${NC}"
