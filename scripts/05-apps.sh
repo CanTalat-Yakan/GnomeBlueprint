@@ -74,6 +74,25 @@ install_dotnet() {
     fi
 }
 
+# ─── Claude installer ─────────────────────────────────────────────────────────
+install_claude() {
+    if command -v claude &>/dev/null; then
+        info "Claude is already installed."
+        return
+    fi
+
+    info "Installing Claude..."
+    curl -fsSL https://claude.ai/install.sh | bash \
+        || warning "Claude install encountered an error."
+
+    if command -v claude &>/dev/null; then
+        info "Claude installed successfully."
+    else
+        warning "Claude binary not found on PATH after install."
+        warning "You may need to restart your shell or add ~/.local/bin to PATH."
+    fi
+}
+
 # ─── OpenCode installer ─────────────────────────────────────────────────────────
 install_opencode() {
     if command -v opencode &>/dev/null; then
@@ -158,6 +177,7 @@ select_and_install_optional_apps() {
                         case "$install_id" in
                             dotnet) install_dotnet ;;
                             opencode) install_opencode ;;
+                            claude) install_claude ;;
                             *) warning "Unknown install script: $install_id" ;;
                         esac
                         ;;

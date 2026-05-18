@@ -170,6 +170,7 @@ Pick any combination from the TUI menu:
 | Entertainment | Discord, Signal, VLC                               | Flatpak |
 | Creative | Blender, GIMP, Unity Hub                           | Flatpak |
 | Utilities | VS Code, JetBrains Rider, GitHub Desktop, Trayscale | Flatpak |
+| Developer | Claude (AI assistant)                              | Script |
 | Developer | OpenCode (AI coding agent)                         | Script |
 | Runtimes | .NET SDK & Runtimes (LTS + STS)                    | Script |
 

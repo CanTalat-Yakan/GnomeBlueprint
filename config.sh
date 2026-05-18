@@ -36,6 +36,7 @@ OPTIONAL_APPS=(
     "GitHub Desktop|flatpak:io.github.shiftey.Desktop"
     "Trayscale (Tailscale GUI)|flatpak:dev.deedles.Trayscale"
     # Developer Tools
+    "Claude (AI assistant)|script:claude"
     "OpenCode (AI coding agent)|script:opencode"
     # Runtimes
     ".NET SDK & Runtimes|script:dotnet"
