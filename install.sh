@@ -145,6 +145,7 @@ BANNER
 
     # 7. Core setup
     install_flatpak
+    install_gnome_menus
     install_docker
     ask_install_tailscale
     install_fastfetch

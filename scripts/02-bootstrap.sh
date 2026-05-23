@@ -153,6 +153,23 @@ system_update() {
     fi
 }
 
+# ─── Install gnome-menus (required by ArcMenu and other extensions) ────────────
+install_gnome_menus() {
+    if [ "$IS_ATOMIC" = true ]; then
+        return
+    elif command -v dnf &>/dev/null; then
+        if ! rpm -q gnome-menus &>/dev/null; then
+            info "Installing gnome-menus..."
+            sudo dnf install -y gnome-menus || warning "Could not install gnome-menus."
+        fi
+    elif command -v pacman &>/dev/null; then
+        if ! pacman -Qi gnome-menus &>/dev/null; then
+            info "Installing gnome-menus..."
+            sudo pacman -S --noconfirm gnome-menus || warning "Could not install gnome-menus."
+        fi
+    fi
+}
+
 # ─── Install fastfetch ─────────────────────────────────────────────────────────
 install_fastfetch() {
     if command -v fastfetch &>/dev/null; then
