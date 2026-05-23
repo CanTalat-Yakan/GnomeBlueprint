@@ -225,7 +225,7 @@ final_cleanup() {
 
     if command -v flatpak &>/dev/null; then
         info "Updating Flatpak applications..."
-        flatpak update -y --noninteractive || warning "flatpak update encountered an error."
+        LANG=C flatpak update -y --noninteractive || warning "flatpak update encountered an error."
         info "Removing unused Flatpak runtimes..."
         flatpak uninstall --unused -y --noninteractive >/dev/null 2>&1 || true
         info "Repairing Flatpak installation..."

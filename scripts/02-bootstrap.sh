@@ -148,7 +148,7 @@ system_update() {
 
     if command -v flatpak &>/dev/null; then
         info "Updating Flatpak applications..."
-        flatpak update -y --noninteractive || warning "flatpak update encountered an error."
+        LANG=C flatpak update -y --noninteractive || warning "flatpak update encountered an error."
     fi
 }
 
