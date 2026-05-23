@@ -62,6 +62,7 @@ menu-button-extensions-app='com.mattjakeman.ExtensionManager.desktop'
 panel-corners=true
 
 [org/gnome/shell/extensions/rounded-window-corners-reborn]
+border-color=(0.07450980392156863, 0.07450980392156863, 0.07450980392156863, 1.0)
 border-width=1
 settings-version=uint32 7
 skip-libadwaita-app=false
