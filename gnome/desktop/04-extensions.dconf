@@ -66,7 +66,7 @@ panel-corners=true
 border-width=1
 settings-version=uint32 7
 skip-libadwaita-app=false
-global-properties={'border-radius': uint32 12, 'padding': {'left': uint32 0, 'right': uint32 0, 'top': uint32 0, 'bottom': uint32 0}, 'keep-rounded-corners': {'maximized': false, 'fullscreen': false}, 'smoothing': 0.0}
+global-properties={'border-radius': uint32 12, 'smoothing': uint32 0}
 focused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
 unfocused-shadow={'horizontalOffset': 0, 'verticalOffset': 0, 'blurOffset': 0, 'spreadRadius': 0, 'opacity': 0}
 
