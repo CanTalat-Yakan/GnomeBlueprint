@@ -153,6 +153,7 @@ with open(path, 'w') as f:
     info "Rewaita dark theme set to Oled variant."
 
     if command -v flatpak &>/dev/null; then
+        _init_addwater
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox oled-black true 2>/dev/null \
             || warning "Could not set Add Water oled-black (run Add Water once first)."
         info "Add Water True Black enabled for Firefox."
@@ -190,11 +191,37 @@ with open(path, 'w') as f:
     info "Oled / pure-black settings applied."
 }
 
+# ─── Launch Add Water once to initialise its GSettings ────────────────────────
+_init_addwater() {
+    have_flatpak_app dev.qwery.AddWater || return 1
+
+    if flatpak run --command=gsettings dev.qwery.AddWater \
+            get dev.qwery.AddWater.Firefox theme-enabled &>/dev/null; then
+        return 0
+    fi
+
+    info "Launching Add Water briefly to initialise settings..."
+    flatpak run dev.qwery.AddWater &>/dev/null &
+    local pid=$!
+    local waited=0
+    while [ "$waited" -lt 15 ]; do
+        sleep 1
+        if flatpak run --command=gsettings dev.qwery.AddWater \
+                get dev.qwery.AddWater.Firefox theme-enabled &>/dev/null; then
+            break
+        fi
+        waited=$((waited + 1))
+    done
+    kill "$pid" 2>/dev/null || true
+    sleep 1
+}
+
 # ─── Configure Add Water (Adwaita theme for Firefox) ───────────────────────────
 configure_addwater() {
     info "Configuring Add Water for Firefox..."
 
     if command -v flatpak &>/dev/null; then
+        _init_addwater
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox theme-enabled true 2>/dev/null || true
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox hide-single-tab true 2>/dev/null || true
         flatpak run --command=gsettings dev.qwery.AddWater set dev.qwery.AddWater.Firefox normal-width-tabs true 2>/dev/null || true
