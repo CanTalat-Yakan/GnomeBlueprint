@@ -34,7 +34,7 @@ docker compose logs -f
 Edit the `.env` file to configure:
 
 - `NC_PORT` - the port Nextcloud is accessible on (default: `8080`)
-- `DB_PASSWORD` - **change this** before first launch
+- `DB_PASSWORD` - auto-generated during install; change manually if deploying without the installer (`openssl rand -base64 42`)
 
 ## Data
 

@@ -6,8 +6,7 @@ NC_PORT=8080
 # The location where your database files are stored
 DB_DATA_LOCATION=./postgres
 
-# Connection secret for postgres. You should change it to a random password
-# Please use only the characters `A-Za-z0-9`, without special characters or spaces
+# Connection secret for postgres. Auto-generated during install. Generate one with: openssl rand -base64 42
 DB_PASSWORD=please-change-me
 
 # The values below this line do not need to be changed
