@@ -115,7 +115,7 @@ RPM removal runs a **dry-run first** - if removing a package would cascade into 
 | 13 | Optionally downloads a **wallpaper collection** from [dharmx/walls](https://github.com/dharmx/walls) (defaults to [m-26.jp](https://github.com/dharmx/walls/tree/main/m-26.jp) slideshow) |
 | 14 | Optionally **removes GNOME bloat** (Boxes, Calendar, Camera, Clocks, Characters, Weather, LibreOffice, etc.) |
 | 15 | Lets you pick **optional apps** (Discord, Steam, VS Code, OpenCode, etc.) |
-| 16 | Lets you pick **Docker Compose services** (Immich, Ollama + Open WebUI, ZeroTier) |
+| 16 | Lets you pick **Docker Compose services** (Immich, Nextcloud, Ollama + Open WebUI, ZeroTier) |
 | 17 | Creates **web app shortcuts** for installed Docker services and Tailscale |
 | 18 | **Pins installed apps** to the dock (Firefox first, Files/Terminal/Software last) |
 | 19 | Registers **OpenCode shortcut** (`Super+C`) if installed |
@@ -183,6 +183,7 @@ Pick any combination from the TUI menu - selected services are copied to your ho
 | Service | Directory | Address | Description |
 |---|---|---|---|
 | Immich | `~/immich` | http://localhost:2283                                | Self-hosted photo & video management |
+| Nextcloud | `~/nextcloud` | http://localhost:8080                                | Self-hosted file sync & collaboration |
 | Ollama + Open WebUI | `~/ollama` | http://localhost:3000                                | Local LLM inference with web chat UI |
 | ZeroTier One | `~/zerotierone` | [central.zerotier.com](https://central.zerotier.com) | Peer-to-peer VPN mesh network |
 
@@ -227,6 +228,7 @@ docker compose up -d      # Restart with new images
 ├── assets/
 │   ├── icons/
 │   │   ├── immich.png              # Immich web app icon
+│   │   ├── nextcloud.png           # Nextcloud web app icon
 │   │   ├── open-webui-light.png    # Open WebUI web app icon
 │   │   ├── tailscale-light.png     # Tailscale web app icon
 │   │   ├── tux-logo.svg            # Tux (Linux) logo icon
@@ -238,6 +240,10 @@ docker compose up -d      # Restart with new images
 │   ├── immich/
 │   │   ├── docker-compose.yml  # Immich photo management stack
 │   │   ├── env                 # Immich configuration (copied as .env)
+│   │   └── README.md
+│   ├── nextcloud/
+│   │   ├── docker-compose.yml  # Nextcloud + PostgreSQL + Redis stack
+│   │   ├── env                 # Nextcloud configuration (copied as .env)
 │   │   └── README.md
 │   ├── ollama/
 │   │   ├── docker-compose.yml  # Ollama + Open WebUI containers

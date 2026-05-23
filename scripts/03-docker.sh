@@ -216,6 +216,15 @@ create_docker_web_apps() {
                 _create_web_app_desktop "Immich" "http://localhost:2283" "immich"
                 created=true
                 ;;
+            nextcloud)
+                local nc_port=8080
+                if [ -f "$HOME/nextcloud/.env" ]; then
+                    nc_port=$(grep -E '^NC_PORT=' "$HOME/nextcloud/.env" | cut -d= -f2)
+                    nc_port=${nc_port:-8080}
+                fi
+                _create_web_app_desktop "Nextcloud" "http://localhost:${nc_port}" "nextcloud"
+                created=true
+                ;;
             ollama)
                 _create_web_app_desktop "Open WebUI" "http://localhost:3000" "open-webui"
                 created=true
@@ -244,6 +253,7 @@ _create_web_app_desktop() {
     local src_icon=""
     case "$icon_name" in
         immich)    src_icon="$DOTFILES_DIR/assets/icons/immich.png" ;;
+        nextcloud) src_icon="$DOTFILES_DIR/assets/icons/nextcloud.png" ;;
         open-webui) src_icon="$DOTFILES_DIR/assets/icons/open-webui-light.png" ;;
         zerotier)  src_icon="$DOTFILES_DIR/assets/icons/zerotier.png" ;;
         tailscale) src_icon="$DOTFILES_DIR/assets/icons/tailscale-light.png" ;;

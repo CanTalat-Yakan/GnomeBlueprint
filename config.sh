@@ -108,6 +108,7 @@ OPTIONAL_PIN_ORDER=(
 # Format: "Label|directory-name"  (must exist under docker/)
 DOCKER_SERVICES=(
     "Immich|immich"
+    "Nextcloud|nextcloud"
     "Ollama + Open WebUI|ollama"
     "ZeroTier One|zerotierone"
 )

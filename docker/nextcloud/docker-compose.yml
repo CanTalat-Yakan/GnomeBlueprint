@@ -1,0 +1,56 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: nextcloud-db
+    restart: unless-stopped
+    volumes:
+      - ${DB_DATA_LOCATION}:/var/lib/postgresql/data:z
+    environment:
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: nextcloud-redis
+    restart: unless-stopped
+    volumes:
+      - ./redis:/data:z
+
+  app:
+    image: nextcloud:apache
+    container_name: nextcloud-app
+    restart: unless-stopped
+    ports:
+      - "${NC_PORT}:80"
+    volumes:
+      - ./html:/var/www/html:z
+      - ./data:/var/www/html/data:z
+      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock:ro
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: ${DB_DATABASE_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: redis
+      NC_PORT: ${NC_PORT}
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        (until su -s /bin/sh -c 'php /var/www/html/occ status 2>/dev/null' www-data | grep -q 'installed: true'; do sleep 5; done
+        TSIP=$$(curl -sf --unix-socket /var/run/tailscale/tailscaled.sock http://local-tailscaled.sock/localapi/v0/status | grep -oE '100\.[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        chown www-data:www-data /var/www/html/config/config.php 2>/dev/null
+        su -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 0 --value='localhost:${NC_PORT}'" www-data
+        [ -n "$$TSIP" ] && su -s /bin/sh -c "php /var/www/html/occ config:system:set trusted_domains 1 --value='$$TSIP:${NC_PORT}'" www-data) &
+        exec /entrypoint.sh apache2-foreground
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started

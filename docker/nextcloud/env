@@ -1,0 +1,16 @@
+# You can find documentation for all the supported env variables at https://hub.docker.com/_/nextcloud
+
+# The port Nextcloud will be accessible on
+NC_PORT=8080
+
+# The location where your database files are stored
+DB_DATA_LOCATION=./postgres
+
+# Connection secret for postgres. You should change it to a random password
+# Please use only the characters `A-Za-z0-9`, without special characters or spaces
+DB_PASSWORD=please-change-me
+
+# The values below this line do not need to be changed
+###################################################################################
+DB_USERNAME=nextcloud
+DB_DATABASE_NAME=nextcloud
