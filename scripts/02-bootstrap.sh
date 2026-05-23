@@ -148,7 +148,8 @@ system_update() {
 
     if command -v flatpak &>/dev/null; then
         info "Updating Flatpak applications..."
-        LANG=C flatpak update -y --noninteractive || warning "flatpak update encountered an error."
+        LANG=C flatpak update -y --noninteractive 2>&1 | cat
+        [ "${PIPESTATUS[0]}" -eq 0 ] || warning "flatpak update encountered an error."
     fi
 }
 

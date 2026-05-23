@@ -97,8 +97,8 @@ install_one_flatpak() {
         info "$app is already installed."
     else
         info "Installing $app..."
-        LANG=C flatpak install --user -y flathub "$app" \
-            || warning "Failed to install $app - skipping."
+        LANG=C flatpak install --user -y flathub "$app" 2>&1 | cat
+        [ "${PIPESTATUS[0]}" -eq 0 ] || warning "Failed to install $app - skipping."
     fi
 }
 
