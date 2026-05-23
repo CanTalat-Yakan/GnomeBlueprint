@@ -23,13 +23,13 @@ setup_themes() {
     elif command -v pacman &>/dev/null; then
         if ! pacman -Qi adw-gtk3 &>/dev/null 2>&1; then
             info "Installing adw-gtk3..."
-            if sudo pacman -S --noconfirm adw-gtk3 &>/dev/null; then
+            if sudo pacman -S --noconfirm adw-gtk3; then
                 true
             elif command -v yay &>/dev/null; then
-                yay -S --noconfirm adw-gtk3 2>/dev/null \
+                yay -S --noconfirm adw-gtk3 \
                     || warning "Could not install adw-gtk3 via yay - install manually from AUR."
             elif command -v paru &>/dev/null; then
-                paru -S --noconfirm adw-gtk3 2>/dev/null \
+                paru -S --noconfirm adw-gtk3 \
                     || warning "Could not install adw-gtk3 via paru - install manually from AUR."
             else
                 warning "Could not install adw-gtk3 - install manually from AUR."
